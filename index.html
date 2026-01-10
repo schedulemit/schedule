@@ -1385,7 +1385,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL813Ew2Mkexgc9-7IZaj_setQCx0jIrvrM-t9rltLhNpfYz3-RMv_2TReSVCZsdqA/exec';
         const ADMIN_PASSWORD = 'admin';
@@ -2234,7 +2234,27 @@
         function toggleMobileMenu(id, e) { e.stopPropagation(); const menu = document.getElementById(`menu-${id}`); document.querySelectorAll('.mobile-menu-dropdown').forEach(m => { if(m.id !== `menu-${id}`) m.classList.remove('show'); }); menu.classList.toggle('show'); }
         function closeAllMobileMenus() { document.querySelectorAll('.mobile-menu-dropdown').forEach(m => m.classList.remove('show')); }
         function openEditById(id) { const l = lessons.find(x => x.id === id); if(l) openEditModal(l); }
-        function activateHighlight(type, val, e) { e.stopPropagation(); if(!val) return; highlightState = { active: true, type, value: val }; document.body.classList.add('spotlight-active'); const p = document.getElementById('filter-panel'); p.classList.add('show'); document.getElementById('filter-msg').innerHTML = `<i class="fa-solid fa-filter"></i> ${val}`; reapplyHighlight(); }
+        function activateHighlight(type, val, e) { 
+            e.stopPropagation(); 
+            if(!val) return; 
+            
+            // Очищаємо розширений пошук, якщо він був активний
+            if (Object.keys(advancedSearchFilters).length > 0) {
+                advancedSearchFilters = {};
+                advancedSearchFiltersOriginal = {};
+                updateFilterButtonState(false);
+            }
+            
+            highlightState = { active: true, type, value: val }; 
+            document.body.classList.add('spotlight-active'); 
+            const p = document.getElementById('filter-panel'); 
+            
+            // Відновлюємо початковий HTML панелі для highlight
+            p.innerHTML = `<span id="filter-msg"><i class="fa-solid fa-filter"></i> ${val}</span><button onclick="clearHighlight()" style="background:white; border:none; color:#1e3a8a; font-weight:700; padding:4px 8px; border-radius:4px; cursor:pointer;">Скинути (Esc)</button>`;
+            
+            p.classList.add('show'); 
+            reapplyHighlight(); 
+        }
         function reapplyHighlight() { document.querySelectorAll('.lesson-card').forEach(c => { c.classList.remove('highlighted'); let match = false; if(highlightState.type === 'group' && c.dataset.group && c.dataset.group.includes(highlightState.value)) match = true; if(highlightState.type === 'teacher' && (c.dataset.teacher === highlightState.value || c.dataset.teacher2 === highlightState.value)) match = true; if(match) c.classList.add('highlighted'); }); }
         function clearHighlight() { highlightState.active = false; document.body.classList.remove('spotlight-active'); document.getElementById('filter-panel').classList.remove('show'); document.querySelectorAll('.lesson-card').forEach(c => c.classList.remove('highlighted')); }
         function handleBodyClick(e) { if(!e.target.closest('.mobile-actions')) closeAllMobileMenus(); if(highlightState.active && !e.target.closest('.lesson-card') && !e.target.closest('.top-bar') && !e.target.closest('.modal-box')) clearHighlight(); }
@@ -2894,6 +2914,7 @@
 
         // --- РОЗШИРЕНИЙ ПОШУК ---
         let advancedSearchFilters = {};
+        let advancedSearchFiltersOriginal = {};
         
         function toggleAdvancedSearch() {
             // Перевіряємо чи є активні фільтри
@@ -2926,6 +2947,7 @@
             document.getElementById('advSearchRoom').value = '';
             document.getElementById('advSearchDay').value = '';
             advancedSearchFilters = {};
+            advancedSearchFiltersOriginal = {};
             
             // Приховуємо панель фільтрів
             const panel = document.getElementById('filter-panel');
@@ -2966,13 +2988,24 @@
         }
         
         function applyAdvancedSearch() {
-            const filters = {
-                teacher: document.getElementById('advSearchTeacher').value.trim().toLowerCase(),
-                group: document.getElementById('advSearchGroup').value.trim().toLowerCase(),
-                subject: document.getElementById('advSearchSubject').value.trim().toLowerCase(),
+            // Зберігаємо оригінальні значення для відображення
+            const originalValues = {
+                teacher: document.getElementById('advSearchTeacher').value.trim(),
+                group: document.getElementById('advSearchGroup').value.trim(),
+                subject: document.getElementById('advSearchSubject').value.trim(),
                 type: document.getElementById('advSearchType').value,
-                room: document.getElementById('advSearchRoom').value.trim().toLowerCase(),
+                room: document.getElementById('advSearchRoom').value.trim(),
                 day: document.getElementById('advSearchDay').value
+            };
+            
+            // Створюємо фільтри з toLowerCase для пошуку
+            const filters = {
+                teacher: originalValues.teacher.toLowerCase(),
+                group: originalValues.group.toLowerCase(),
+                subject: originalValues.subject.toLowerCase(),
+                type: originalValues.type,
+                room: originalValues.room.toLowerCase(),
+                day: originalValues.day
             };
             
             // Перевіряємо чи хоч один фільтр заповнений
@@ -2984,6 +3017,15 @@
             }
             
             advancedSearchFilters = filters;
+            advancedSearchFiltersOriginal = originalValues;
+            
+            // Очищаємо highlight, якщо він був активний
+            if (highlightState.active) {
+                highlightState.active = false;
+                document.body.classList.remove('spotlight-active');
+                document.querySelectorAll('.lesson-card').forEach(c => c.classList.remove('highlighted'));
+            }
+            
             renderLessons();
             closeAdvancedSearch();
             
@@ -2998,15 +3040,18 @@
             const panel = document.getElementById('filter-panel');
             if (!panel) return;
             
+            // Використовуємо оригінальні значення для відображення
+            const displayFilters = advancedSearchFiltersOriginal || advancedSearchFilters;
+            
             const activeFilters = [];
-            if (advancedSearchFilters.teacher) activeFilters.push(`Викладач: ${advancedSearchFilters.teacher}`);
-            if (advancedSearchFilters.group) activeFilters.push(`Група: ${advancedSearchFilters.group}`);
-            if (advancedSearchFilters.subject) activeFilters.push(`Предмет: ${advancedSearchFilters.subject}`);
-            if (advancedSearchFilters.type) activeFilters.push(`Тип: ${advancedSearchFilters.type}`);
-            if (advancedSearchFilters.room) activeFilters.push(`Аудиторія: ${advancedSearchFilters.room}`);
-            if (advancedSearchFilters.day) {
+            if (displayFilters.teacher) activeFilters.push(`Викладач: ${displayFilters.teacher}`);
+            if (displayFilters.group) activeFilters.push(`Група: ${displayFilters.group}`);
+            if (displayFilters.subject) activeFilters.push(`Предмет: ${displayFilters.subject}`);
+            if (displayFilters.type) activeFilters.push(`Тип: ${displayFilters.type}`);
+            if (displayFilters.room) activeFilters.push(`Аудиторія: ${displayFilters.room}`);
+            if (displayFilters.day) {
                 const days = ['', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт'];
-                activeFilters.push(`День: ${days[advancedSearchFilters.day]}`);
+                activeFilters.push(`День: ${days[displayFilters.day]}`);
             }
             
             panel.innerHTML = `
@@ -3401,7 +3446,6 @@
                 </html>
             `;
         }
-
         init();
     </script>
 </body>
