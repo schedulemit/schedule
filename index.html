@@ -370,7 +370,7 @@
         .week-btn { padding: 6px 16px; border: none; background: transparent; font-size: 0.9rem; font-weight: 700; color: #94a3b8; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-family: 'Inter', sans-serif; }
         .week-btn.active { background: white; color: var(--univ-blue); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 
-        #action-panel, #filter-panel { display: none; position: absolute; top: 110%; left: 0; right: 0; padding: 0.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); z-index: 100; text-align: center; font-weight: 600; font-size: 0.9rem; align-items: center; justify-content: center; gap: 1rem; }
+        #action-panel, #filter-panel { display: none; position: absolute; top: 110%; left: 0; right: 0; padding: 0.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); z-index: 50; text-align: center; font-weight: 600; font-size: 0.9rem; align-items: center; justify-content: center; gap: 1rem; }
         #action-panel.mode-swap { background: var(--swap-mode-bg); border: 2px solid var(--swap-mode-border); color: #064e3b; }
         #action-panel.mode-move { background: var(--move-mode-bg); border: 2px solid var(--move-mode-border); color: #1e40af; }
         #action-panel.show { display: flex; }
@@ -399,7 +399,7 @@
             font-size: 0.95rem; 
             position: sticky; 
             top: 0; 
-            z-index: 20; 
+            z-index: 200000; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
@@ -478,8 +478,81 @@
 
         .diff-added { background-color: var(--diff-added) !important; border: 2px solid var(--diff-added-border); }
         .diff-changed { background-color: var(--diff-changed) !important; border: 2px solid var(--diff-changed-border); }
-        .diff-removed { background-color: var(--diff-removed) !important; border: 2px solid var(--diff-removed-border); opacity: 0.6; filter: grayscale(0.6); pointer-events: none; }
-        .diff-removed::after { content: 'БУЛО'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); color: #dc2626; font-weight: 800; font-size: 0.9rem; opacity: 0.6; pointer-events: none; border: 2px solid #dc2626; padding: 2px 4px; border-radius: 4px; }
+        .diff-removed { 
+            background-color: var(--diff-removed) !important; 
+            border: 3px solid var(--diff-removed-border) !important; 
+            opacity: 0.85; 
+            position: relative;
+        }
+        
+        /* Кнопки на видалених картках мають працювати */
+        .diff-removed .diff-actions {
+            pointer-events: auto;
+        }
+        
+        .diff-removed::after { 
+            content: 'ВИДАЛЕНО'; 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%) rotate(-12deg); 
+            color: #dc2626; 
+            font-weight: 900; 
+            font-size: 0.75rem; 
+            opacity: 0.9; 
+            pointer-events: none; 
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #dc2626; 
+            padding: 4px 12px; 
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+            letter-spacing: 1px;
+        }
+        
+        body.dark-mode .diff-removed::after {
+            background: rgba(30, 30, 30, 0.95);
+            color: #fca5a5;
+            border-color: #f87171;
+            box-shadow: 0 2px 8px rgba(248, 113, 113, 0.4);
+        }
+        
+        /* Стиль для переміщених пар (помаранчевий з БУЛО) */
+        .diff-moved-source { 
+            background-color: #fed7aa !important; 
+            border: 2px solid #fb923c !important; 
+            opacity: 0.5; 
+            filter: grayscale(0.6); 
+            pointer-events: none;
+            position: relative;
+        }
+        .diff-moved-source::after { 
+            content: 'БУЛО'; 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%) rotate(-12deg); 
+            color: #ea580c; 
+            font-weight: 800; 
+            font-size: 0.7rem; 
+            opacity: 0.6; 
+            pointer-events: none; 
+            background: rgba(255, 255, 255, 0.6);
+            border: 2px solid #fb923c; 
+            padding: 3px 10px; 
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(251, 146, 60, 0.2);
+        }
+        
+        body.dark-mode .diff-moved-source {
+            background-color: #7c2d12 !important;
+            border-color: #fb923c !important;
+        }
+        
+        body.dark-mode .diff-moved-source::after {
+            background: rgba(30, 30, 30, 0.9);
+            color: #fdba74;
+            border-color: #fb923c;
+        }
         
         .diff-context { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
         .diff-processed { opacity: 1; filter: none; border: 2px solid #cbd5e1; }
@@ -537,7 +610,7 @@
 
         .note-text { font-size: 9px; color: #d97706; margin-top: 2px; font-style: italic; border-top: 1px solid #f1f5f9; padding-top: 2px;}
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 200000; }
         .modal-overlay.open { display: flex; }
         .modal-box { background: white; padding: 1.5rem; border-radius: 0.75rem; width: 380px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
         .modal-header { font-size: 1.1rem; font-weight: 700; color: var(--univ-blue); margin-bottom: 1rem; }
@@ -547,9 +620,82 @@
         .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.5rem; }
         .btn { padding: 0.6rem 1.2rem; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; font-size: 0.9rem;}
         .btn-primary { background: var(--univ-blue); color: white; }
-        .btn-secondary { background: #f1f5f9; color: #475569; }
+        .btn-secondary { 
+            background: #f1f5f9; 
+            color: #475569; 
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-secondary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(100, 116, 139, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn-secondary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn-secondary:hover {
+            background: #e2e8f0;
+            color: #334155;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(71, 85, 105, 0.2);
+        }
+        .btn-secondary:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(71, 85, 105, 0.2);
+        }
+        
         .btn-danger { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
-        .btn-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        
+        .btn-success { 
+            background: #dcfce7; 
+            color: #166534; 
+            border: 1px solid #bbf7d0; 
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-success::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(34, 197, 94, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn-success:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn-success:hover {
+            background: #bbf7d0;
+            color: #14532d;
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
+        }
+        .btn-success:active {
+            transform: translateY(0) scale(1);
+            box-shadow: 0 2px 6px rgba(34, 197, 94, 0.3);
+        }
+        .btn-success i {
+            transition: transform 0.3s ease;
+        }
+        .btn-success:hover i {
+            transform: rotate(360deg) scale(1.2);
+        }
 
         .stats-container { display: flex; flex-direction: column; gap: 1.5rem; max-height: 70vh; overflow-y: auto; padding-right: 5px; }
         .stat-section { border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem; }
@@ -869,10 +1015,44 @@
             }
         }
         
-    </style>
-</head>
-<body onclick="handleBodyClick(event)">
-
+        /* Анімація для індикатора змін */
+        @keyframes pulse-glow {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7);
+            }
+            50% { 
+                box-shadow: 0 0 0 6px rgba(250, 204, 21, 0);
+            }
+        }
+        
+        @keyframes modalBounce {
+            0% { 
+                opacity: 0;
+                transform: scale(0.8) translateY(-20px);
+            }
+            50% {
+                transform: scale(1.02) translateY(0);
+            }
+            100% { 
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        #draft-alert {
+            animation: pulse-glow 2s infinite;
+            transition: all 0.3s ease;
+        }
+        
+        #draft-alert:hover {
+            background: #facc15 !important;
+            color: #713f12 !important;
+            transform: scale(1.05);
+        }
+        </style>
+    </head>
+<body>
+    
     <div id="compare-panel">
         <div class="compare-header">
             <div style="font-weight:700; display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-code-compare"></i> Порівняння пропозицій</div>
@@ -883,7 +1063,7 @@
         </div>
         <div class="compare-legend">
             <div class="leg-item"><div class="dot" style="background:#22c55e;"></div> Нове</div>
-            <div class="leg-item"><div class="dot" style="background:#f97316;"></div> Змінено</div>
+            <div class="leg-item"><div class="dot" style="background:#f97316;\"></div> Змінено</div>
             <div class="leg-item"><div class="dot" style="background:#ef4444;"></div> Видалено</div>
             <div style="font-style:italic; font-size:0.8rem; margin-left:10px;">Необроблені залишаться в чернетці.</div>
         </div>
@@ -895,8 +1075,12 @@
             <div class="header-left">
                 <h2>🎓 Розклад кафедри МІТ</h2>
                 <div id="role-badge" class="status-badge st-guest"><i class="fa-solid fa-user"></i> Гість</div>
-                <div id="draft-alert" class="status-badge" style="display:none; background:#fef9c3; color:#a16207; border:1px solid #facc15; cursor:pointer;" onclick="startCompare()">
-                    <i class="fa-solid fa-bell"></i> Є запит на зміну!
+                <div id="draft-alert" class="status-badge" style="display:none; background:#fef9c3; color:#a16207; border:1px solid #facc15; cursor:pointer; gap:6px; padding:6px 10px;" onclick="startCompare()">
+                    <i class="fa-solid fa-bell"></i> 
+                    <span id="draft-alert-text">Запити:</span>
+                    <span id="draft-stats-inline" style="display:flex; gap:8px; font-size:11px; font-weight:600;">
+                        <!-- Заповнюється JS -->
+                    </span>
                 </div>
                 <div id="cloudStatus" class="cloud-status status-saved" title="Статус синхронізації">
                     <i class="fa-solid fa-cloud-check"></i> <span>Готово</span>
@@ -968,7 +1152,7 @@
 
     <div class="modal-overlay" id="loginModal">
         <div class="modal-box">
-            <div class="modal-header">Вхід для лаборанта</div>
+            <div class="modal-header">Вхід для адміна</div>
             <div class="form-group">
                 <input type="password" id="adminPass" class="form-input" placeholder="Введіть пароль" autocomplete="new-password">
             </div>
@@ -1303,7 +1487,7 @@
                 <!-- Контакти -->
                 <div class="help-section" style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; margin-top: 1.5rem;">
                     <h3 class="help-title" style="margin-top: 0;">📧 Потрібна допомога?</h3>
-                    <p style="margin: 0.5rem 0;">Якщо у вас виникли питання або знайшли помилку, напишіть нам на адресу: <strong><a href="/cdn-cgi/l/" class="__cf_email__" data-cfemail="b6dfc2dbddd7d0d3d2c4d7f6d1dbd7dfda98d5d9db">itmkafedra@gmail.com</a></strong></p>
+                    <p style="margin: 0.5rem 0;">Якщо у вас виникли питання або знайшли помилку, напишіть нам на адресу: <strong><a href="/cdn-cgi/l/" class="__cf_email__" data-cfemail="b6dfc2dbddd7d0d3d2c4d7f6d1dbd7dfda98d5d9db"><span class="__cf_email__" data-cfemail="137a677e7872757677617253747e727a7f3d707c7e">[email&#160;protected]</span></a></strong></p>
                     <p style="margin: 0.5rem 0; font-size: 0.85rem; color: #64748b;">
                         <strong>Версія:</strong> 1.0 | 
                         <strong>Оновлено:</strong> Січень 2026
@@ -1385,10 +1569,68 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <!-- Кастомний Alert/Confirm -->
+    <div class="modal-overlay" id="customAlertModal">
+        <div class="modal-box" style="max-width: 450px; animation: modalBounce 0.3s ease;">
+            <div id="customAlertIcon" style="text-align: center; font-size: 48px; margin: 20px 0 10px 0;">
+                <i class="fa-solid fa-circle-info" style="color: #3b82f6;"></i>
+            </div>
+            <div class="modal-header" id="customAlertTitle" style="text-align: center; font-size: 20px; padding: 10px 20px;">Повідомлення</div>
+            <div style="padding: 10px 30px 30px 30px; text-align: center; font-size: 15px; line-height: 1.6; color: #475569;" id="customAlertMessage"></div>
+            <div class="modal-actions" id="customAlertActions" style="gap: 10px; padding: 0 20px 20px 20px;">
+                <button class="btn btn-primary" onclick="closeCustomAlert(true)" style="min-width: 100px;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL813Ew2Mkexgc9-7IZaj_setQCx0jIrvrM-t9rltLhNpfYz3-RMv_2TReSVCZsdqA/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2l0Jib1VB-q1CW_oQtVJ2HeU-d2J-jSSBzspcaExt3_keP7tw59i7A2mVeCBwSyVI/exec';
         const ADMIN_PASSWORD = 'admin';
+        
+        // Кастомний alert/confirm
+        let customAlertResolve = null;
+        
+        function customAlert(message, title = 'Повідомлення', type = 'info') {
+            return new Promise((resolve) => {
+                customAlertResolve = resolve;
+                
+                // Іконки та кольори для різних типів
+                const icons = {
+                    'info': '<i class="fa-solid fa-circle-info" style="color: #3b82f6;"></i>',
+                    'success': '<i class="fa-solid fa-circle-check" style="color: #22c55e;"></i>',
+                    'warning': '<i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b;"></i>',
+                    'error': '<i class="fa-solid fa-circle-xmark" style="color: #ef4444;"></i>'
+                };
+                
+                document.getElementById('customAlertIcon').innerHTML = icons[type] || icons['info'];
+                document.getElementById('customAlertTitle').textContent = title;
+                document.getElementById('customAlertMessage').textContent = message;
+                document.getElementById('customAlertActions').innerHTML = '<button class="btn btn-primary" onclick="closeCustomAlert(true)" style="min-width: 100px;">OK</button>';
+                document.getElementById('customAlertModal').classList.add('open');
+            });
+        }
+        
+        function customConfirm(message, title = 'Підтвердження') {
+            return new Promise((resolve) => {
+                customAlertResolve = resolve;
+                
+                // Іконка питання для confirm
+                document.getElementById('customAlertIcon').innerHTML = '<i class="fa-solid fa-circle-question" style="color: #f59e0b;"></i>';
+                document.getElementById('customAlertTitle').textContent = title;
+                document.getElementById('customAlertMessage').textContent = message;
+                document.getElementById('customAlertActions').innerHTML = '<button class="btn btn-secondary" onclick="closeCustomAlert(false)" style="min-width: 100px;">Скасувати</button><button class="btn btn-primary" onclick="closeCustomAlert(true)" style="min-width: 100px;">OK</button>';
+                document.getElementById('customAlertModal').classList.add('open');
+            });
+        }
+        
+        function closeCustomAlert(result) {
+            document.getElementById('customAlertModal').classList.remove('open');
+            if (customAlertResolve) {
+                customAlertResolve(result);
+                customAlertResolve = null;
+            }
+        }
 
         // Різні часові слоти для різних днів тижня (1=Пн, 2=Вт, 3=Ср, 4=Чт, 5=Пт)
         const TIME_SLOTS = {
@@ -1662,12 +1904,52 @@
             updateLiveStatus();
             setInterval(updateLiveStatus, 30000);
             loadFromGoogle(); 
+            
+            // Автоперевірка нових draft запитів для адміна (кожні 10 секунд)
+            setInterval(() => {
+                if (isAdmin && !isCompareMode) {
+                    checkForNewDraft();
+                }
+            }, 10000);
+            
             window.addEventListener('beforeunload', function (e) { if (unsavedChanges) { e.preventDefault(); e.returnValue = ''; } });
             document.addEventListener('dragend', () => { document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('drag-over')); });
             fixTooltips();
             
             // Ініціалізуємо історію з поточним станом
             saveState();
+        }
+        
+        // Перевірка нових draft без перезавантаження всього
+        async function checkForNewDraft() {
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL);
+                const data = await response.json();
+                
+                if (data.result === 'success' && data.draft) {
+                    const newDraft = sanitizeData(data.draft.lessons);
+                    
+                    // Порівнюємо з поточним draft
+                    const currentDraftStr = JSON.stringify(draftLessons || []);
+                    const newDraftStr = JSON.stringify(newDraft);
+                    
+                    if (currentDraftStr !== newDraftStr) {
+                        // Є нові зміни - оновлюємо
+                        draftLessons = newDraft;
+                        updateDraftAlert();
+                        
+                        // Оновлюємо візуалізацію якщо в режимі порівняння
+                        if (isCompareMode) {
+                            renderLessons();
+                        }
+                        
+                        console.log('[AUTO CHECK] Знайдено нові draft зміни');
+                    }
+                }
+            } catch (e) {
+                // Тихо ігноруємо помилки автоперевірки
+                console.log('[AUTO CHECK] Помилка:', e.message);
+            }
         }
 
         function fixTooltips() {
@@ -1697,7 +1979,9 @@
                     day: parseInt(l.day) || 1,
                     slot: parseInt(l.slot) || 1,
                     note: l.note || '',
-                    teacher2: l.teacher2 || ''
+                    teacher2: l.teacher2 || '',
+                    // Зберігаємо _deleted якщо є
+                    ...(l._deleted ? { _deleted: true } : {})
                 }));
         }
 
@@ -1717,7 +2001,7 @@
                 setAdminMode(true);
                 closeLoginModal();
                 reloadAll();
-            } else { alert('Невірний пароль'); document.getElementById('adminPass').value=''; }
+            } else { customAlert('Невірний пароль', 'Помилка', 'error'); document.getElementById('adminPass').value=''; }
         }
         function logout() {
             setAdminMode(false);
@@ -1756,11 +2040,85 @@
             }
             return false;
         }
+        
+        function countDraftChanges() {
+            if (!draftLessons || draftLessons.length === 0) return { total: 0, added: 0, removed: 0, modified: 0 };
+            
+            const liveMap = new Map(liveLessons.map(l => [String(l.id), l]));
+            const draftMap = new Map(draftLessons.map(l => [String(l.id), l]));
+            
+            let added = 0;
+            let removed = 0;
+            let modified = 0;
+            
+            // Обробляємо всі пари з draft
+            for (let [id, draftL] of draftMap) {
+                const liveL = liveMap.get(id);
+                
+                // Перевіряємо чи є маркер _deleted
+                if (draftL._deleted) {
+                    // Пара позначена як видалена
+                    removed++;
+                }
+                else if (!liveL) {
+                    // Пара є в draft але немає в live = додана
+                    added++;
+                } 
+                else {
+                    // Обидві є - порівнюємо (виключаючи _deleted з порівняння)
+                    const liveClean = { ...liveL };
+                    const draftClean = { ...draftL };
+                    delete draftClean._deleted; // На всяк випадок
+                    
+                    if (JSON.stringify(liveClean) !== JSON.stringify(draftClean)) {
+                        modified++;
+                    }
+                    // Якщо ідентичні - не рахуємо (це context)
+                }
+            }
+            
+            const total = added + removed + modified;
+            
+            console.log('[COUNT] Draft changes:', { total, added, removed, modified });
+            
+            return { total, added, removed, modified };
+        }
 
         function updateDraftAlert() {
             const draftAlert = document.getElementById('draft-alert');
+            const statsInline = document.getElementById('draft-stats-inline');
+            
             if (isAdmin && checkRealDifferences()) {
+                const changes = countDraftChanges();
+                
+                // Формуємо inline статистику з іконками та кольорами
+                let statsHtml = '';
+                
+                if (changes.added > 0) {
+                    statsHtml += `<span style="background:#dcfce7; color:#166534; padding:2px 8px; border-radius:8px; display:flex; align-items:center; gap:4px;">
+                        <i class="fa-solid fa-plus" style="font-size:9px;"></i> ${changes.added}
+                    </span>`;
+                }
+                
+                if (changes.modified > 0) {
+                    statsHtml += `<span style="background:#fed7aa; color:#c2410c; padding:2px 8px; border-radius:8px; display:flex; align-items:center; gap:4px;">
+                        <i class="fa-solid fa-pen" style="font-size:9px;"></i> ${changes.modified}
+                    </span>`;
+                }
+                
+                if (changes.removed > 0) {
+                    statsHtml += `<span style="background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:8px; display:flex; align-items:center; gap:4px;">
+                        <i class="fa-solid fa-trash" style="font-size:9px;"></i> ${changes.removed}
+                    </span>`;
+                }
+                
+                statsInline.innerHTML = statsHtml;
                 draftAlert.style.display = 'flex';
+                
+                // Pulse анімація при нових змінах
+                draftAlert.classList.remove('pulse-glow');
+                void draftAlert.offsetWidth;
+                draftAlert.classList.add('pulse-glow');
             } else {
                 draftAlert.style.display = 'none';
             }
@@ -1780,7 +2138,7 @@
         }
 
         async function loadFromGoogle() {
-            if(unsavedChanges && !confirm("Незбережені локальні зміни будуть втрачені. Оновити?")) return;
+            if(unsavedChanges && !(await customConfirm("Незбережені локальні зміни будуть втрачені. Оновити?"))) return;
             updateCloudStatus('pending', 'Перевірка...');
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL);
@@ -1790,6 +2148,13 @@
                 liveLessons = sanitizeData(data.live?.lessons || []);
                 let rawDraft = data.draft ? sanitizeData(data.draft.lessons) : [];
                 draftLessons = (rawDraft.length > 0) ? rawDraft : null;
+                
+                console.log('[LOAD] Draft lessons loaded:', draftLessons ? draftLessons.length : 0);
+                if (draftLessons) {
+                    const deletedCount = draftLessons.filter(l => l._deleted).length;
+                    console.log('[LOAD] Draft with _deleted marker:', deletedCount);
+                    console.log('[LOAD] Draft deleted items:', draftLessons.filter(l => l._deleted));
+                }
                 
                 if(data.live?.teachers) teachersList = data.live.teachers;
                 if(data.live?.subjects) subjectsList = data.live.subjects;
@@ -1830,23 +2195,69 @@
         }
 
         async function guestPropose() {
-            if(!confirm("Надіслати зміни на затвердження?")) return;
-            await sendData('propose', { lessons: lessons });
-            alert("Пропозицію надіслано!");
+            if(!(await customConfirm("Надіслати зміни на затвердження?"))) return;
+            
+            // Обчислюємо що саме змінилось відносно liveLessons
+            const changes = calculateChanges(liveLessons, lessons);
+            
+            console.log('[GUEST PROPOSE] Changes to send:', changes);
+            console.log('[GUEST PROPOSE] Added:', changes.added.length);
+            console.log('[GUEST PROPOSE] Modified:', changes.modified.length);
+            console.log('[GUEST PROPOSE] Removed:', changes.removed.length);
+            console.log('[GUEST PROPOSE] Removed details:', changes.removed);
+            
+            // Надсилаємо тільки зміни + live для контексту
+            await sendData('propose', { 
+                changes: changes,
+                liveLessons: liveLessons
+            });
+            
+            customAlert('Пропозицію надіслано!', 'Успішно', 'success');
             unsavedChanges = false;
             reloadAll(); 
         }
+        
+        function calculateChanges(live, current) {
+            const liveMap = new Map(live.map(l => [String(l.id), l]));
+            const currentMap = new Map(current.map(l => [String(l.id), l]));
+            
+            const added = [];
+            const modified = [];
+            const removed = [];
+            
+            // Знаходимо додані та змінені
+            for (let [id, currentLesson] of currentMap) {
+                const liveLesson = liveMap.get(id);
+                if (!liveLesson) {
+                    // Нова пара
+                    added.push(currentLesson);
+                } else if (JSON.stringify(liveLesson) !== JSON.stringify(currentLesson)) {
+                    // Змінена пара
+                    modified.push(currentLesson);
+                }
+            }
+            
+            // Знаходимо видалені
+            for (let [id, liveLesson] of liveMap) {
+                if (!currentMap.has(id)) {
+                    // Пара була видалена
+                    removed.push({ id: id, _deleted: true });
+                }
+            }
+            
+            return { added, modified, removed };
+        }
 
         async function adminSave() {
-            if(!confirm("Зберегти зміни у ПУБЛІЧНИЙ розклад?")) return;
+            if(!(await customConfirm("Зберегти зміни у ПУБЛІЧНИЙ розклад?"))) return;
             await sendData('admin_save', { lessons: lessons });
-            alert("Збережено!");
+            customAlert('Збережено!', 'Успішно', 'success');
             unsavedChanges = false;
             reloadAll();
         }
 
         async function saveMergedChanges() {
-            if(!confirm("Зберегти оброблені зміни?")) return;
+            if(!(await customConfirm("Зберегти оброблені зміни?"))) return;
             
             const newLive = JSON.parse(JSON.stringify(tempLiveLessons));
             const allDiffs = getDiffIds(liveLessons, draftLessons);
@@ -1855,7 +2266,20 @@
             const allProcessed = Array.from(allDiffs).every(id => processedIds.has(id));
             
             if (!allProcessed) {
-                nextDraftLessons = draftLessons; 
+                // Залишаємо тільки необроблені зміни, видаляємо _deleted маркери з оброблених
+                nextDraftLessons = draftLessons.filter(lesson => {
+                    const id = String(lesson.id);
+                    // Якщо оброблено і має _deleted - не зберігаємо
+                    if (processedIds.has(id) && lesson._deleted) {
+                        return false;
+                    }
+                    // Якщо оброблено але без _deleted - також не зберігаємо (вже в live)
+                    if (processedIds.has(id)) {
+                        return false;
+                    }
+                    // Необроблені залишаємо
+                    return true;
+                });
             }
 
             await sendData('commit_changes', {
@@ -1863,7 +2287,7 @@
                 draft: { lessons: nextDraftLessons }
             });
             
-            alert("Зміни успішно застосовано!");
+            customAlert('Зміни успішно застосовано!', 'Успішно', 'success');
             exitCompare();
             reloadAll();
         }
@@ -1884,7 +2308,7 @@
         }
 
         async function rejectDraft() {
-            if(!confirm("Відхилити ВСІ пропозиції та очистити чернетку?")) return;
+            if(!(await customConfirm("Відхилити ВСІ пропозиції та очистити чернетку?"))) return;
             await sendData('reject', {});
             exitCompare();
             reloadAll();
@@ -1902,7 +2326,7 @@
                 updateCloudStatus('saved', 'Виконано');
             } catch(e) {
                 updateCloudStatus('error', 'Помилка');
-                alert("Помилка: " + e.message);
+                customAlert("Помилка: " + e.message, "Помилка", "error");
             }
         }
 
@@ -1927,9 +2351,16 @@
             const draftItem = draftLessons.find(l => String(l.id) === strId);
             
             if (draftItem) {
-                tempLiveLessons = tempLiveLessons.filter(l => String(l.id) !== strId);
-                tempLiveLessons.push(draftItem);
+                if (draftItem._deleted) {
+                    // Пара була видалена - видаляємо з tempLiveLessons
+                    tempLiveLessons = tempLiveLessons.filter(l => String(l.id) !== strId);
+                } else {
+                    // Пара була додана/змінена - замінюємо в tempLiveLessons
+                    tempLiveLessons = tempLiveLessons.filter(l => String(l.id) !== strId);
+                    tempLiveLessons.push(draftItem);
+                }
             } else {
+                // Якщо немає в draft - видаляємо
                 tempLiveLessons = tempLiveLessons.filter(l => String(l.id) !== strId);
             }
             
@@ -1961,6 +2392,10 @@
                 const draftMap = new Map((draftLessons||[]).map(l => [String(l.id), l]));
                 const liveMap = new Map(liveLessons.map(l => [String(l.id), l]));
                 
+                console.log('[RENDER DIFF] Draft lessons:', draftLessons ? draftLessons.length : 0);
+                console.log('[RENDER DIFF] Live lessons:', liveLessons.length);
+                console.log('[RENDER DIFF] Draft with _deleted:', draftLessons ? draftLessons.filter(l => l._deleted).length : 0);
+                
                 const allIds = new Set([...draftMap.keys(), ...liveMap.keys()]);
                 
                 allIds.forEach(id => {
@@ -1976,14 +2411,40 @@
 
                     const draftL = draftMap.get(id);
                     const liveL = liveMap.get(id);
+                    
+                    // Логування для дебагу
+                    const hasLive = !!liveL;
+                    const hasDraft = !!draftL;
+                    const hasDeleted = draftL && draftL._deleted;
+                    
+                    if (hasDeleted || (!hasLive && hasDraft) || (hasLive && !hasDraft)) {
+                        console.log(`[DIFF] ID ${id}: live=${hasLive}, draft=${hasDraft}, deleted=${hasDeleted}`);
+                        if (hasDraft && draftL._deleted) {
+                            console.log(`  → REMOVED (has _deleted marker)`);
+                        } else if (!hasLive && hasDraft) {
+                            console.log(`  → ADDED (in draft, not in live)`);
+                        } else if (hasLive && !hasDraft) {
+                            console.log(`  → CONTEXT (in live, not in draft = no changes)`);
+                        }
+                    }
 
-                    if (!liveL && draftL) {
+                    // Перевіряємо чи є маркер _deleted в draft
+                    if (draftL && draftL._deleted) {
+                        // Пара була видалена - показуємо live з статусом removed
+                        if (liveL) {
+                            displayList.push({ ...liveL, _status: 'removed' });
+                        }
+                    }
+                    else if (!liveL && draftL) {
+                        // Додана пара (є в draft але немає в live)
                         displayList.push({ ...draftL, _status: 'added' });
                     }
                     else if (liveL && !draftL) {
-                        displayList.push({ ...liveL, _status: 'removed' });
+                        // Пара є в live але немає в draft = НЕ змінювалась
+                        displayList.push({ ...liveL, _status: 'context' });
                     }
                     else if (liveL && draftL) {
+                        // Обидві є - порівнюємо
                         if (JSON.stringify(liveL) !== JSON.stringify(draftL)) {
                             displayList.push({ ...draftL, _status: 'changed' });
                             displayList.push({ ...liveL, _status: 'moved-source', _ghostId: id });
@@ -2029,7 +2490,8 @@
             
             let isDiffCard = false;
             if (doDiff) {
-                if (['removed','moved-source'].includes(lesson._status)) { div.classList.add('diff-removed'); isDiffCard=true; }
+                if (lesson._status === 'removed') { div.classList.add('diff-removed'); isDiffCard=true; }
+                else if (lesson._status === 'moved-source') { div.classList.add('diff-moved-source'); isDiffCard=true; }
                 else if (lesson._status==='added') { div.classList.add('diff-added'); isDiffCard=true; }
                 else if (lesson._status==='changed') { div.classList.add('diff-changed'); isDiffCard=true; }
                 else if (lesson._status==='context') { div.classList.add('diff-context'); isDiffCard=true; }
@@ -2081,7 +2543,7 @@
                 div.addEventListener('dragstart', handleDragStart);
                 div.addEventListener('click', (e) => {
                     if(!e.target.closest('.action-btn') && !e.target.closest('.group-badge') && !e.target.closest('.teacher-row') && !e.target.closest('.mobile-menu-item')) {
-                        if (actionState.active) { if (actionState.type === 'swap') performSwap(lesson.id); else alert("Клікніть на ПОРОЖНІЙ слот."); } else openEditModal(lesson);
+                        if (actionState.active) { if (actionState.type === 'swap') performSwap(lesson.id); else customAlert("Клікніть на ПОРОЖНІЙ слот."); } else openEditModal(lesson);
                     }
                 });
             }
@@ -2152,7 +2614,7 @@
         function startSwap(id, title, e) { e.stopPropagation(); clearHighlight(); actionState = { active: true, type: 'swap', sourceId: id }; document.body.classList.add('mode-swap'); showActionPanel(`Обмін: <b>${title}</b>`, 'mode-swap'); renderLessons(); }
         function showActionPanel(html, cssClass) { const p = document.getElementById('action-panel'); p.className = ''; p.classList.add(cssClass, 'show'); p.querySelector('span').innerHTML = html; }
         
-        function performMoveToEmpty(day, slot) { 
+        async function performMoveToEmpty(day, slot) { 
             const idx = lessons.findIndex(l => l.id === actionState.sourceId);
             if (idx === -1) return;
             
@@ -2168,7 +2630,7 @@
                     'room': `⚠️ Конфлікт: Аудиторія ${hasConflict.lesson.room} вже зайнята в цей час!\n\n${hasConflict.lesson.subject} (${hasConflict.lesson.teacher})\n\nВсе одно перемістити?`
                 };
                 
-                if (!confirm(conflictMessages[hasConflict.type])) {
+                if (!(await customConfirm(conflictMessages[hasConflict.type]))) {
                     return;
                 }
             }
@@ -2210,7 +2672,7 @@
             document.getElementById('action-panel').className = ''; 
             renderLessons(); 
         }
-        function handleSlotClick(day, slot, e) { 
+        async function handleSlotClick(day, slot, e) { 
             if(isCompareMode) return; 
             if (e.target.closest('.lesson-card')) return; 
             
@@ -2218,8 +2680,8 @@
             if (duplicateState.active) return;
             
             if (actionState.active) { 
-                if (actionState.type === 'move') performMoveToEmpty(day, slot); 
-                else alert("Ви в режимі Обміну. Клікніть на ІНШУ ПАРУ."); 
+                if (actionState.type === 'move') await performMoveToEmpty(day, slot); 
+                else customAlert("Ви в режимі Обміну. Клікніть на ІНШУ ПАРУ."); 
             } else {
                 // На мобільних відкриваємо тільки якщо клікнули на кнопку "+"
                 const isMobile = window.innerWidth <= 768;
@@ -2261,11 +2723,11 @@
         function updateLiveStatus() { const now = new Date(); const d = now.getDay(); const m = now.getHours()*60 + now.getMinutes(); document.querySelectorAll('.time-slot.drag-over').forEach(el => el.classList.remove('drag-over')); document.querySelectorAll('.day-column').forEach(c => c.classList.remove('current-day')); if(d>=1 && d<=5) document.getElementById(`day-${d}`).classList.add('current-day'); document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('current-now')); if(d>=1 && d<=5) { const slot = TIME_SLOTS[d].find(s => m >= s.start && m <= s.end); if(slot) document.querySelector(`.time-slot[data-day="${d}"][data-slot="${slot.id}"]`)?.classList.add('current-now'); } }
         function exportToImage() { const el = document.getElementById('schedule-container'); const h = el.style.height; el.style.height = 'auto'; html2canvas(el, { scale: 2, backgroundColor: '#f1f5f9' }).then(c => { const a = document.createElement('a'); a.download = `schedule_week_${currentWeek}.png`; a.href = c.toDataURL(); a.click(); el.style.height = h; }); }
         function downloadBackup() { const data = JSON.stringify({ lessons, teachersList, subjectsList, groupsList }, null, 2); const blob = new Blob([data], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
-        function uploadBackup(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); lessons = sanitizeData(data.lessons); saveToLocal(); renderLessons(); } catch (err) { alert('Error'); } }; reader.readAsText(file); }
+        function uploadBackup(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); lessons = sanitizeData(data.lessons); saveToLocal(); renderLessons(); } catch (err) { customAlert('Помилка завантаження файлу', 'Помилка', 'error'); } }; reader.readAsText(file); }
         function openNewModal(d, s) { editState = { isNew: true, lessonId: null, day: d, slot: s }; clearForm(); document.getElementById('modalTitle').innerText = 'Нова пара'; document.getElementById('addModal').classList.add('open'); document.getElementById('inputGroup').focus(); }
         function openEditModal(l) { editState = { isNew: false, lessonId: l.id }; document.getElementById('modalTitle').innerText = 'Редагування'; document.getElementById('inputGroup').value = l.group; document.getElementById('inputSubject').value = l.subject; document.getElementById('inputType').value = l.type; document.getElementById('inputTeacher').value = l.teacher; document.getElementById('inputTeacher2').value = l.teacher2; document.getElementById('inputNote').value = l.note; const sel = document.getElementById('inputRoomSelect'); if(Array.from(sel.options).some(o=>o.value===l.room)) { sel.value = l.room; document.getElementById('inputRoomNumber').value = ''; } else { sel.value = 'custom'; document.getElementById('inputRoomNumber').value = l.room; } toggleCustomRoom(); toggleTeacher2(); document.getElementById('addModal').classList.add('open'); }
-        function saveLesson() { const g = document.getElementById('inputGroup').value, s = document.getElementById('inputSubject').value, t = document.getElementById('inputTeacher').value, t2 = document.getElementById('inputTeacher2').value, note = document.getElementById('inputNote').value, type = document.getElementById('inputType').value; let r = document.getElementById('inputRoomSelect').value; if(r==='custom') r = document.getElementById('inputRoomNumber').value; if(!s) { alert('Введіть назву'); return; } saveState(); if(editState.isNew) lessons.push({ id: 'l'+Date.now(), week: currentWeek, day: editState.day, slot: editState.slot, group: g, subject: s, teacher: t, teacher2: t2, type, room: r, note }); else { const i = lessons.findIndex(l => l.id === editState.lessonId); if(i>-1) Object.assign(lessons[i], { group: g, subject: s, teacher: t, teacher2: t2, type, room: r, note }); } triggerAutoSave(); closeModal(); renderLessons(); checkConflicts(); }
-        function deleteLesson(id, e) { e.stopPropagation(); if(confirm('Видалити?')) { saveState(); lessons = lessons.filter(l=>l.id!==id); triggerAutoSave(); renderLessons(); checkConflicts(); } }
+        function saveLesson() { const g = document.getElementById('inputGroup').value, s = document.getElementById('inputSubject').value, t = document.getElementById('inputTeacher').value, t2 = document.getElementById('inputTeacher2').value, note = document.getElementById('inputNote').value, type = document.getElementById('inputType').value; let r = document.getElementById('inputRoomSelect').value; if(r==='custom') r = document.getElementById('inputRoomNumber').value; if(!s) { customAlert('Введіть назву'); return; } saveState(); if(editState.isNew) lessons.push({ id: 'l'+Date.now(), week: currentWeek, day: editState.day, slot: editState.slot, group: g, subject: s, teacher: t, teacher2: t2, type, room: r, note }); else { const i = lessons.findIndex(l => l.id === editState.lessonId); if(i>-1) Object.assign(lessons[i], { group: g, subject: s, teacher: t, teacher2: t2, type, room: r, note }); } triggerAutoSave(); closeModal(); renderLessons(); checkConflicts(); }
+        async function deleteLesson(id, e) { e.stopPropagation(); if(await customConfirm('Видалити?')) { saveState(); lessons = lessons.filter(l=>l.id!==id); triggerAutoSave(); renderLessons(); checkConflicts(); } }
         
         let duplicateState = {
             active: false,
@@ -2907,7 +3369,7 @@
 
         function copyLink(text) {
             navigator.clipboard.writeText(text).then(() => {
-                alert("Посилання скопійовано!");
+                customAlert('Посилання скопійовано!', 'Успішно', 'success');
             });
         }
 
@@ -3012,7 +3474,7 @@
             const hasFilters = Object.values(filters).some(v => v !== '');
             
             if (!hasFilters) {
-                alert('Оберіть хоча б один параметр для пошуку!');
+                customAlert('Оберіть хоча б один параметр для пошуку!');
                 return;
             }
             
@@ -3118,7 +3580,7 @@
             });
             
             if (teacherLessons.length === 0) {
-                alert('Пар для цього викладача не знайдено!');
+                customAlert('Пар для цього викладача не знайдено!');
                 return;
             }
             
