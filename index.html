@@ -84,6 +84,31 @@
             background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
             box-shadow: 0 4px 12px rgba(96, 165, 250, 0.5) !important;
         }
+        
+        /* 🎨 Стильний tooltip для кнопок зі змінами */
+        .btn-sync.has-changes::after {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+            padding: 10px 16px !important;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 8px 16px rgba(59, 130, 246, 0.4), 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+            letter-spacing: 0.3px;
+        }
+        
+        .btn-sync.has-changes::before {
+            border-color: #2563eb transparent transparent transparent !important;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+        
+        body.dark-mode .btn-sync.has-changes::after {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%) !important;
+            box-shadow: 0 8px 16px rgba(96, 165, 250, 0.5), 0 0 0 2px rgba(96, 165, 250, 0.3) !important;
+        }
+        
+        body.dark-mode .btn-sync.has-changes::before {
+            border-color: #3b82f6 transparent transparent transparent !important;
+        }
 
         /* 🎨 Гарна темна тема */
         body.dark-mode .top-bar { 
@@ -365,6 +390,7 @@
         
         body.is-admin .admin-controls { display: flex; }
         body.is-admin .guest-controls { display: none; }
+        body.is-admin #loginBtn { display: none; }
 
         .week-switcher { display: flex; background: #f1f5f9; padding: 3px; border-radius: 8px; }
         .week-btn { padding: 6px 16px; border: none; background: transparent; font-size: 0.9rem; font-weight: 700; color: #94a3b8; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-family: 'Inter', sans-serif; }
@@ -1096,40 +1122,32 @@
         <!-- Другий рядок: Кнопки управління -->
         <div class="top-bar-row second">
             <div class="controls-right">
-                <!-- Кнопки Undo/Redo -->
-                <button class="btn-sync" id="undoBtn" onclick="undo()" title="Скасувати останню дію" disabled>
-                    <i class="fa-solid fa-rotate-left"></i> <span id="undoCount"></span>
-                </button>
-                <button class="btn-sync" id="redoBtn" onclick="redo()" title="Повторити дію" disabled>
-                    <i class="fa-solid fa-rotate-right"></i> <span id="redoCount"></span>
-                </button>
-                <div style="width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px;"></div>
-                
+
                 <div class="guest-controls">
-                    <button class="btn-sync" id="filterBtnGuest" onclick="toggleAdvancedSearch()" title="Пошук та фільтри"><i class="fa-solid fa-filter"></i> Фільтри</button>
                     <button class="btn-sync" id="reloadBtnGuest" onclick="reloadAll()" title="Оновити"><i class="fa-solid fa-rotate"></i></button>
-                    <button class="btn-sync btn-primary" id="proposeBtnGuest" onclick="guestPropose()" title="Надіслати зміни"><i class="fa-solid fa-paper-plane"></i>Запропонувати зміни</button>
-                    <button class="btn-sync" id="loginBtn" onclick="showLogin()"><i class="fa-solid fa-lock"></i> Вхід</button>
+                    <button class="btn-sync btn-primary" id="proposeBtnGuest" onclick="guestPropose()"><i class="fa-solid fa-paper-plane"></i>Запропонувати зміни</button>
                 </div>
 
                 <div class="admin-controls">
                     <button class="btn-sync" onclick="openLinksModal()" title="Посилання та PDF для викладачів"><i class="fa-solid fa-user-group"></i> Викладачі</button>
                     <button class="btn-sync" id="filterBtnAdmin" onclick="toggleAdvancedSearch()" title="Пошук та фільтри"><i class="fa-solid fa-filter"></i> Фільтри</button>
+                    <button class="btn-sync" onclick="openStats()" title="Статистика"><i class="fa-solid fa-chart-simple"></i></button>
+                    <button class="btn-sync btn-manual-save" id="saveBtnAdmin" onclick="adminSave()"><i class="fa-solid fa-floppy-disk"></i> Зберегти</button>
+                    <button class="btn-sync btn-backup" onclick="downloadBackup()" title="Резервна копія"><i class="fa-solid fa-download"></i></button>
+                    <label class="btn-sync btn-backup" title="Відновити" style="cursor: pointer;">
+                        <i class="fa-solid fa-upload"></i>
+                        <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="uploadBackup(this)">
+                    </label>
                     <button class="btn-sync" id="reloadBtnAdmin" onclick="reloadAll()" title="Оновити"><i class="fa-solid fa-rotate"></i></button>
-                    <button class="btn-sync btn-manual-save" id="saveBtnAdmin" onclick="adminSave()" title="Пряме збереження"><i class="fa-solid fa-floppy-disk"></i> Зберегти</button>
                     <button class="btn-sync" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Вихід</button>
                 </div>
 
+                <button class="btn-sync" id="loginBtn" onclick="showLogin()"><i class="fa-solid fa-lock"></i> Вхід</button>
+                
                 <button class="btn-sync" id="darkModeToggle" onclick="toggleDarkMode()" title="Темна тема">
                     <i class="fa-solid fa-moon"></i>
                 </button>
-                <button class="btn-sync" onclick="openStats()" title="Статистика"><i class="fa-solid fa-chart-simple"></i></button>
                 <button class="btn-sync btn-export" onclick="exportToImage()" title="PNG"><i class="fa-solid fa-camera"></i></button>
-                <button class="btn-sync btn-backup" onclick="downloadBackup()" title="Бекап"><i class="fa-solid fa-download"></i></button>
-                <label class="btn-sync btn-backup" title="Відновити" style="cursor: pointer;">
-                    <i class="fa-solid fa-upload"></i>
-                    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="uploadBackup(this)">
-                </label>
                 <button class="btn-sync" onclick="openHelp()" title="Допомога" style="color: #8b5cf6; border-color: #ddd6fe;"><i class="fa-solid fa-circle-question"></i></button>
             </div>
         </div>
@@ -1171,7 +1189,7 @@
             <div class="form-group"><label class="form-label">Тип</label><select class="form-input" id="inputType" onchange="toggleTeacher2()"><option value="Лекція">Лекція</option><option value="Лабораторна">Лабораторна</option><option value="Практична">Практична</option><option value="Семінар">Семінар</option></select></div>
             <div class="form-group"><label class="form-label">Викладач</label><input class="form-input" type="text" id="inputTeacher" list="teachersList" placeholder="Прізвище..."><datalist id="teachersList"></datalist></div>
             <div class="form-group" id="teacher2Group" style="display:none;"><label class="form-label">Другий викладач</label><input class="form-input" type="text" id="inputTeacher2" list="teachersList"></div>
-            <div class="form-group"><label class="form-label">Аудиторія</label><select class="form-input" id="inputRoomSelect" onchange="toggleCustomRoom()"><option value="" disabled selected>Оберіть...</option><optgroup label="Лекційні"><option value="custom">Вказати вручну...</option></optgroup><optgroup label="Комп'ютерні класи"><option value="Комп. клас 1">Комп. клас 1</option><option value="Комп. клас 2">Комп. клас 2</option><option value="Комп. клас 3">Комп. клас 3</option></optgroup><optgroup label="Практикуми"><option value="Практикум 1">Практикум 1</option><option value="Практикум 2">Практикум 2</option><option value="Практикум 3">Практикум 3</option></optgroup></select><div id="customRoomGroup" style="display:none; margin-top:0.5rem;"><input class="form-input" type="text" id="inputRoomNumber" placeholder="Номер"></div></div>
+            <div class="form-group"><label class="form-label">Аудиторія</label><select class="form-input" id="inputRoomSelect" onchange="toggleCustomRoom()"></select><div id="customRoomGroup" style="display:none; margin-top:0.5rem;"><input class="form-input" type="text" id="inputRoomNumber" placeholder="Номер"></div></div>
             <div class="form-group"><label class="form-label">Примітка</label><textarea class="form-input" id="inputNote" style="resize:vertical; min-height:50px;"></textarea></div>
             <div class="modal-actions"><button class="btn btn-secondary" onclick="closeModal()">Закрити</button><button class="btn btn-primary" onclick="saveLesson()">Зберегти</button></div>
         </div>
@@ -1257,15 +1275,7 @@
                     <h3 class="help-title">🔘 Кнопки управління (Режим Гість)</h3>
                     
                     <div class="help-buttons-grid">
-                        <div class="help-button-item">
-                            <span class="help-btn-demo"><i class="fa-solid fa-rotate-left"></i></span>
-                            <span class="help-btn-demo"><i class="fa-solid fa-rotate-right"></i></span>
-                            <div>
-                                <strong>Undo / Redo</strong>
-                                <p>Скасування та повтор останніх дій</p>
-                            </div>
-                        </div>
-                        
+
                         <div class="help-button-item">
                             <span class="help-btn-demo"><i class="fa-solid fa-filter"></i></span>
                             <div>
@@ -1363,8 +1373,8 @@
                         <div class="help-button-item">
                             <span class="help-btn-demo" style="color: #4f46e5; border-color: #c7d2fe;"><i class="fa-solid fa-download"></i></span>
                             <div>
-                                <strong>Бекап</strong>
-                                <p>Завантажити резервну копію</p>
+                                <strong>Резервна копія</strong>
+                                <p>Завантажити резервну копію розкладу</p>
                             </div>
                         </div>
                         
@@ -1537,7 +1547,7 @@
             
             <div class="form-group">
                 <label class="form-label">Аудиторія</label>
-                <input class="form-input" type="text" id="advSearchRoom" placeholder="Всі аудиторії">
+                <input class="form-input" type="text" id="advSearchRoom" list="roomsList" placeholder="Всі аудиторії">
             </div>
             
             <div class="form-group">
@@ -1558,6 +1568,8 @@
             </div>
         </div>
     </div>
+    
+    <datalist id="roomsList"></datalist>
 
     <div class="modal-overlay" id="linksModal">
         <div class="modal-box" style="width: 600px; max-height: 80vh; display: flex; flex-direction: column;">
@@ -1583,9 +1595,9 @@
         </div>
     </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2l0Jib1VB-q1CW_oQtVJ2HeU-d2J-jSSBzspcaExt3_keP7tw59i7A2mVeCBwSyVI/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCRd1-0kld7CAlL9wu_60-OBF6hTtYpb92OijePoBcFqi6igeHFS9QAWm2t3M3YUzATg/exec';
         const ADMIN_PASSWORD = 'admin';
         
         // Кастомний alert/confirm
@@ -1677,7 +1689,7 @@
         let lessons = []; 
         let tempLiveLessons = []; 
         let processedIds = new Set(); 
-        let teachersList = []; let subjectsList = []; let groupsList = [];
+        let teachersList = []; let subjectsList = []; let groupsList = []; let roomsList = [];
         
         let isAdmin = false;
         let isCompareMode = false;
@@ -1686,113 +1698,6 @@
         let editState = { isNew: true, lessonId: null, day: null, slot: null };
         let autoSaveTimer = null;
         let unsavedChanges = false;
-
-        // Система Undo/Redo - окрема історія для Гостя та Адміна
-        let guestHistory = [];
-        let adminHistory = [];
-        let guestHistoryIndex = -1;
-        let adminHistoryIndex = -1;
-        const MAX_HISTORY = 20;
-
-        function getHistory() {
-            return isAdmin ? adminHistory : guestHistory;
-        }
-
-        function getHistoryIndex() {
-            return isAdmin ? adminHistoryIndex : guestHistoryIndex;
-        }
-
-        function setHistoryIndex(value) {
-            if (isAdmin) {
-                adminHistoryIndex = value;
-            } else {
-                guestHistoryIndex = value;
-            }
-        }
-
-        function saveState() {
-            // Зберігаємо стан тільки якщо не в режимі порівняння
-            if (isCompareMode) return;
-            
-            let history = getHistory();
-            let historyIndex = getHistoryIndex();
-            
-            // Видаляємо всі стани після поточної позиції (якщо робимо нову дію після undo)
-            if (historyIndex < history.length - 1) {
-                history = history.slice(0, historyIndex + 1);
-            }
-            
-            // Додаємо новий стан
-            history.push(JSON.parse(JSON.stringify(lessons)));
-            
-            // Обмежуємо розмір історії
-            if (history.length > MAX_HISTORY) {
-                history.shift();
-            } else {
-                historyIndex++;
-            }
-            
-            // Зберігаємо оновлену історію
-            if (isAdmin) {
-                adminHistory = history;
-                adminHistoryIndex = historyIndex;
-            } else {
-                guestHistory = history;
-                guestHistoryIndex = historyIndex;
-            }
-            
-            updateUndoRedoButtons();
-        }
-
-        function undo() {
-            let historyIndex = getHistoryIndex();
-            if (historyIndex <= 0) return;
-            
-            historyIndex--;
-            setHistoryIndex(historyIndex);
-            
-            const history = getHistory();
-            lessons = JSON.parse(JSON.stringify(history[historyIndex]));
-            
-            renderLessons();
-            checkConflicts();
-            updateUndoRedoButtons();
-            triggerAutoSave();
-        }
-
-        function redo() {
-            const history = getHistory();
-            let historyIndex = getHistoryIndex();
-            
-            if (historyIndex >= history.length - 1) return;
-            
-            historyIndex++;
-            setHistoryIndex(historyIndex);
-            
-            lessons = JSON.parse(JSON.stringify(history[historyIndex]));
-            
-            renderLessons();
-            checkConflicts();
-            updateUndoRedoButtons();
-            triggerAutoSave();
-        }
-
-        function updateUndoRedoButtons() {
-            const undoBtn = document.getElementById('undoBtn');
-            const redoBtn = document.getElementById('redoBtn');
-            const undoCount = document.getElementById('undoCount');
-            const redoCount = document.getElementById('redoCount');
-            
-            const history = getHistory();
-            const historyIndex = getHistoryIndex();
-            
-            const canUndo = historyIndex > 0;
-            const canRedo = historyIndex < history.length - 1;
-            
-            undoBtn.disabled = !canUndo;
-            redoBtn.disabled = !canRedo;
-        }
-
 
         // 🌙 Dark Mode
         function toggleDarkMode() {
@@ -1833,11 +1738,15 @@
                 if (hasChanges) {
                     proposeBtn.classList.add('has-changes');
                     proposeBtn.classList.remove('no-changes');
-                    proposeBtn.title = '📤 Є зміни для відправки!';
+                    proposeBtn.disabled = false;
+                    proposeBtn.removeAttribute('data-tooltip');
+                    proposeBtn.removeAttribute('title');
                 } else {
                     proposeBtn.classList.remove('has-changes');
                     proposeBtn.classList.add('no-changes');
-                    proposeBtn.title = 'Немає змін для відправки';
+                    proposeBtn.disabled = true;
+                    proposeBtn.setAttribute('data-tooltip', 'Немає змін для відправки');
+                    proposeBtn.removeAttribute('title');
                 }
             }
             
@@ -1847,11 +1756,15 @@
                 if (hasChanges) {
                     saveBtn.classList.add('has-changes');
                     saveBtn.classList.remove('no-changes');
-                    saveBtn.title = '💾 Є незбережені зміни!';
+                    saveBtn.disabled = false;
+                    saveBtn.removeAttribute('data-tooltip');
+                    saveBtn.removeAttribute('title');
                 } else {
                     saveBtn.classList.remove('has-changes');
                     saveBtn.classList.add('no-changes');
-                    saveBtn.title = 'Немає змін для збереження';
+                    saveBtn.disabled = true;
+                    saveBtn.setAttribute('data-tooltip', 'Немає змін для збереження');
+                    saveBtn.removeAttribute('title');
                 }
             }
         }
@@ -1915,9 +1828,6 @@
             window.addEventListener('beforeunload', function (e) { if (unsavedChanges) { e.preventDefault(); e.returnValue = ''; } });
             document.addEventListener('dragend', () => { document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('drag-over')); });
             fixTooltips();
-            
-            // Ініціалізуємо історію з поточним станом
-            saveState();
         }
         
         // Перевірка нових draft без перезавантаження всього
@@ -2020,9 +1930,6 @@
             badge.className = val ? 'status-badge st-admin' : 'status-badge st-guest';
             badge.innerHTML = val ? '<i class="fa-solid fa-user-shield"></i> Адмін' : '<i class="fa-solid fa-user"></i> Гість';
             updateDraftAlert();
-            
-            // Оновлюємо кнопки Undo/Redo для нового режиму
-            updateUndoRedoButtons();
         }
         
         function checkRealDifferences() {
@@ -2134,6 +2041,22 @@
             const tData = localStorage.getItem('uni_teachers_list'); if(tData) teachersList = JSON.parse(tData);
             const sData = localStorage.getItem('uni_subjects_list'); if(sData) subjectsList = JSON.parse(sData);
             const gData = localStorage.getItem('uni_groups_list'); if(gData) groupsList = JSON.parse(gData);
+            const rData = localStorage.getItem('uni_rooms_list'); if(rData) roomsList = JSON.parse(rData);
+            
+            // Якщо списків немає в localStorage, генеруємо їх з наявних занять
+            if (!teachersList || teachersList.length === 0) {
+                teachersList = [...new Set(liveLessons.map(l => l.teacher).filter(t => t))];
+            }
+            if (!subjectsList || subjectsList.length === 0) {
+                subjectsList = [...new Set(liveLessons.map(l => l.subject).filter(s => s))];
+            }
+            if (!groupsList || groupsList.length === 0) {
+                groupsList = [...new Set(liveLessons.map(l => l.group).filter(g => g))];
+            }
+            if (!roomsList || roomsList.length === 0) {
+                roomsList = [...new Set(liveLessons.map(l => l.room).filter(r => r && typeof r === 'string' && !r.startsWith('Аудиторія ')))];
+            }
+            
             populateDatalists();
         }
 
@@ -2159,10 +2082,26 @@
                 if(data.live?.teachers) teachersList = data.live.teachers;
                 if(data.live?.subjects) subjectsList = data.live.subjects;
                 if(data.live?.groups) groupsList = data.live.groups;
+                if(data.live?.rooms) roomsList = data.live.rooms;
+                
+                // Якщо сервер не надав списки, генеруємо їх з наявних занять
+                if (!teachersList || teachersList.length === 0) {
+                    teachersList = [...new Set(liveLessons.map(l => l.teacher).filter(t => t))];
+                }
+                if (!subjectsList || subjectsList.length === 0) {
+                    subjectsList = [...new Set(liveLessons.map(l => l.subject).filter(s => s))];
+                }
+                if (!groupsList || groupsList.length === 0) {
+                    groupsList = [...new Set(liveLessons.map(l => l.group).filter(g => g))];
+                }
+                if (!roomsList || roomsList.length === 0) {
+                    roomsList = [...new Set(liveLessons.map(l => l.room).filter(r => r && typeof r === 'string' && !r.startsWith('Аудиторія ')))];
+                }
 
                 localStorage.setItem('uni_teachers_list', JSON.stringify(teachersList));
                 localStorage.setItem('uni_groups_list', JSON.stringify(groupsList));
                 localStorage.setItem('uni_subjects_list', JSON.stringify(subjectsList));
+                localStorage.setItem('uni_rooms_list', JSON.stringify(roomsList));
 
                 if (!isCompareMode) {
                     lessons = JSON.parse(JSON.stringify(liveLessons));
@@ -2195,6 +2134,11 @@
         }
 
         async function guestPropose() {
+            // Перевіряємо чи є зміни
+            if (!hasUnsavedChanges()) {
+                return; // Тихо виходимо, бо кнопка disabled
+            }
+            
             if(!(await customConfirm("Надіслати зміни на затвердження?"))) return;
             
             // Обчислюємо що саме змінилось відносно liveLessons
@@ -2249,7 +2193,12 @@
         }
 
         async function adminSave() {
-            if(!(await customConfirm("Зберегти зміни у ПУБЛІЧНИЙ розклад?"))) return;
+            // Перевіряємо чи є зміни
+            if (!hasUnsavedChanges()) {
+                return; // Тихо виходимо, бо кнопка disabled
+            }
+            
+            if(!(await customConfirm("Зберегти зміни у розклад?"))) return;
             await sendData('admin_save', { lessons: lessons });
             customAlert('Збережено!', 'Успішно', 'success');
             unsavedChanges = false;
@@ -2511,7 +2460,17 @@
             
             const typeInfo = getTypeDisplay(lesson.type);
 
-            let roomDisplay = lesson.type === 'Лекція' && lesson.room ? 'Ауд. ' + lesson.room : lesson.room;
+            // Логіка відображення аудиторії:
+            // - Якщо "Аудиторія 201" → "Ауд. 201"
+            // - Якщо "Комп. клас 1" → "Комп. клас 1" (без "Ауд.")
+            // - Якщо "Практикум 1" → "Практикум 1" (без "Ауд.")
+            let roomDisplay = lesson.room;
+            if (lesson.room && typeof lesson.room === 'string' && lesson.room.startsWith('Аудиторія ')) {
+                // Видаляємо "Аудиторія ", додаємо "Ауд. "
+                const roomNum = lesson.room.replace('Аудиторія ', '');
+                roomDisplay = 'Ауд. ' + roomNum;
+            }
+            
             let teacherDisplay = lesson.teacher; if (lesson.teacher2) teacherDisplay += `, ${lesson.teacher2}`;
             
             let actionsHtml = '';
@@ -2551,7 +2510,98 @@
         }
 
         // --- BASIC FUNCTIONS ---
-        function populateDatalists() { const fill = (id, arr) => { const el = document.getElementById(id); el.innerHTML = ''; if(Array.isArray(arr)) arr.forEach(i => { const o = document.createElement('option'); o.value = i; el.appendChild(o); }); }; fill('teachersList', teachersList); fill('subjectsList', subjectsList); fill('groupsList', groupsList); }
+        function updateListsFromLessons() {
+            // Оновлюємо списки з поточних занять
+            const newTeachers = [...new Set(lessons.map(l => l.teacher).filter(t => t))];
+            const newSubjects = [...new Set(lessons.map(l => l.subject).filter(s => s))];
+            const newGroups = [...new Set(lessons.map(l => l.group).filter(g => g))];
+            
+            // Для аудиторій НЕ додаємо "Аудиторія N" - тільки звичайні назви
+            const newRooms = [...new Set(lessons.map(l => l.room).filter(r => r && typeof r === 'string' && !r.startsWith('Аудиторія ')))];
+            
+            // Об'єднуємо з існуючими списками
+            teachersList = [...new Set([...teachersList, ...newTeachers])].sort();
+            subjectsList = [...new Set([...subjectsList, ...newSubjects])].sort();
+            groupsList = [...new Set([...groupsList, ...newGroups])].sort();
+            roomsList = [...new Set([...roomsList, ...newRooms])].sort();
+            
+            // Зберігаємо оновлені списки
+            localStorage.setItem('uni_teachers_list', JSON.stringify(teachersList));
+            localStorage.setItem('uni_subjects_list', JSON.stringify(subjectsList));
+            localStorage.setItem('uni_groups_list', JSON.stringify(groupsList));
+            localStorage.setItem('uni_rooms_list', JSON.stringify(roomsList));
+            
+            // Оновлюємо datalists
+            populateDatalists();
+        }
+        function populateDatalists() { 
+            const fill = (id, arr) => { 
+                const el = document.getElementById(id); 
+                if (!el) return;
+                el.innerHTML = ''; 
+                if(Array.isArray(arr)) arr.forEach(i => { 
+                    const o = document.createElement('option'); 
+                    o.value = i; 
+                    el.appendChild(o); 
+                }); 
+            }; 
+            fill('teachersList', teachersList); 
+            fill('subjectsList', subjectsList); 
+            fill('groupsList', groupsList);
+            
+            console.log('[DEBUG] roomsList:', roomsList);
+            
+            // Фільтруємо зайві значення (цифри, порожні рядки)
+            const filteredRooms = roomsList.filter(room => {
+                if (!room || typeof room !== 'string') return false;
+                if (room.trim() === '') return false;
+                // Видаляємо чисті цифри (1, 2, 3 тощо)
+                if (/^\d+$/.test(room.trim())) return false;
+                return true;
+            });
+            
+            console.log('[DEBUG] filteredRooms:', filteredRooms);
+            
+            // Заповнюємо datalist ВІДФІЛЬТРОВАНИМИ аудиторіями (для фільтрів)
+            fill('roomsList', filteredRooms);
+            
+            // Заповнюємо select аудиторій для створення пари
+            const roomSelect = document.getElementById('inputRoomSelect');
+            if (roomSelect) {
+                console.log('[DEBUG] Clearing and populating roomSelect');
+                
+                // Очищаємо select
+                roomSelect.innerHTML = '';
+                
+                // Додаємо базові опції
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.disabled = true;
+                defaultOption.selected = true;
+                defaultOption.textContent = 'Оберіть...';
+                roomSelect.appendChild(defaultOption);
+                
+                const auditoriumOption = document.createElement('option');
+                auditoriumOption.value = 'auditorium';
+                auditoriumOption.textContent = 'Аудиторія (номер вказати вручну)';
+                roomSelect.appendChild(auditoriumOption);
+                
+                // Додаємо аудиторії з filteredRooms
+                if (Array.isArray(filteredRooms) && filteredRooms.length > 0) {
+                    console.log('[DEBUG] Adding rooms from filteredRooms:', filteredRooms);
+                    filteredRooms.forEach(room => {
+                        console.log('[DEBUG] Adding room:', room);
+                        const option = document.createElement('option');
+                        option.value = room;
+                        option.textContent = room;
+                        roomSelect.appendChild(option);
+                    });
+                }
+                
+                console.log('[DEBUG] Final options count:', roomSelect.options.length);
+                console.log('[DEBUG] Options:', Array.from(roomSelect.options).map(o => o.textContent));
+            }
+        }
         function updateCloudStatus(type, text) { const el = document.getElementById('cloudStatus'); el.className = 'cloud-status'; if(type === 'saved') { el.classList.add('status-saved'); el.innerHTML = `<i class="fa-solid fa-cloud-check"></i> <span>${text}</span>`; } else if (type === 'pending') { el.classList.add('status-pending'); el.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> <span>${text}</span>`; } else { el.classList.add('status-error'); el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>${text}</span>`; } }
         function setWeek(w) { 
             currentWeek = parseInt(w); 
@@ -2577,7 +2627,7 @@
         
         function handleDragStart(e) { if(actionState.active || isCompareMode) { e.preventDefault(); return; } e.dataTransfer.setData('text/plain', this.id); actionState.type='move'; }
         function handleDragOver(e) { e.preventDefault(); if(!actionState.active && !isCompareMode) this.classList.add('drag-over'); }
-        function handleDrop(e) { e.preventDefault(); this.classList.remove('drag-over'); if(isCompareMode) return; const id = e.dataTransfer.getData('text/plain'); const slotEl = e.target.closest('.time-slot'); if(id && slotEl) { const idx = lessons.findIndex(l => l.id === id); if(idx > -1) { saveState(); lessons[idx].day = parseInt(slotEl.dataset.day); lessons[idx].slot = parseInt(slotEl.dataset.slot); lessons[idx].week = parseInt(currentWeek); finalizeAction(); } } }
+        function handleDrop(e) { e.preventDefault(); this.classList.remove('drag-over'); if(isCompareMode) return; const id = e.dataTransfer.getData('text/plain'); const slotEl = e.target.closest('.time-slot'); if(id && slotEl) { const idx = lessons.findIndex(l => l.id === id); if(idx > -1) { lessons[idx].day = parseInt(slotEl.dataset.day); lessons[idx].slot = parseInt(slotEl.dataset.slot); lessons[idx].week = parseInt(currentWeek); finalizeAction(); } } }
         function startMove(id, title, e) { 
             e.stopPropagation(); 
             clearHighlight(); 
@@ -2635,9 +2685,6 @@
                 }
             }
             
-            // Зберігаємо стан перед переміщенням
-            saveState();
-            
             // Переміщуємо
             lessons[idx].day = day; 
             lessons[idx].slot = slot; 
@@ -2651,7 +2698,6 @@
             const sIdx = lessons.findIndex(l => l.id === actionState.sourceId); 
             const tIdx = lessons.findIndex(l => l.id === tId); 
             if (sIdx > -1 && tIdx > -1) {
-                saveState();
                 const tmp = { d: lessons[sIdx].day, s: lessons[sIdx].slot, w: lessons[sIdx].week }; 
                 lessons[sIdx].day = lessons[tIdx].day; lessons[sIdx].slot = lessons[tIdx].slot; lessons[sIdx].week = lessons[tIdx].week; 
                 lessons[tIdx].day = tmp.d; lessons[tIdx].slot = tmp.s; lessons[tIdx].week = tmp.w; 
@@ -2722,12 +2768,76 @@
         function handleBodyClick(e) { if(!e.target.closest('.mobile-actions')) closeAllMobileMenus(); if(highlightState.active && !e.target.closest('.lesson-card') && !e.target.closest('.top-bar') && !e.target.closest('.modal-box')) clearHighlight(); }
         function updateLiveStatus() { const now = new Date(); const d = now.getDay(); const m = now.getHours()*60 + now.getMinutes(); document.querySelectorAll('.time-slot.drag-over').forEach(el => el.classList.remove('drag-over')); document.querySelectorAll('.day-column').forEach(c => c.classList.remove('current-day')); if(d>=1 && d<=5) document.getElementById(`day-${d}`).classList.add('current-day'); document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('current-now')); if(d>=1 && d<=5) { const slot = TIME_SLOTS[d].find(s => m >= s.start && m <= s.end); if(slot) document.querySelector(`.time-slot[data-day="${d}"][data-slot="${slot.id}"]`)?.classList.add('current-now'); } }
         function exportToImage() { const el = document.getElementById('schedule-container'); const h = el.style.height; el.style.height = 'auto'; html2canvas(el, { scale: 2, backgroundColor: '#f1f5f9' }).then(c => { const a = document.createElement('a'); a.download = `schedule_week_${currentWeek}.png`; a.href = c.toDataURL(); a.click(); el.style.height = h; }); }
-        function downloadBackup() { const data = JSON.stringify({ lessons, teachersList, subjectsList, groupsList }, null, 2); const blob = new Blob([data], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
+        function downloadBackup() { const data = JSON.stringify({ lessons, teachersList, subjectsList, groupsList, roomsList }, null, 2); const blob = new Blob([data], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
         function uploadBackup(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); lessons = sanitizeData(data.lessons); saveToLocal(); renderLessons(); } catch (err) { customAlert('Помилка завантаження файлу', 'Помилка', 'error'); } }; reader.readAsText(file); }
         function openNewModal(d, s) { editState = { isNew: true, lessonId: null, day: d, slot: s }; clearForm(); document.getElementById('modalTitle').innerText = 'Нова пара'; document.getElementById('addModal').classList.add('open'); document.getElementById('inputGroup').focus(); }
-        function openEditModal(l) { editState = { isNew: false, lessonId: l.id }; document.getElementById('modalTitle').innerText = 'Редагування'; document.getElementById('inputGroup').value = l.group; document.getElementById('inputSubject').value = l.subject; document.getElementById('inputType').value = l.type; document.getElementById('inputTeacher').value = l.teacher; document.getElementById('inputTeacher2').value = l.teacher2; document.getElementById('inputNote').value = l.note; const sel = document.getElementById('inputRoomSelect'); if(Array.from(sel.options).some(o=>o.value===l.room)) { sel.value = l.room; document.getElementById('inputRoomNumber').value = ''; } else { sel.value = 'custom'; document.getElementById('inputRoomNumber').value = l.room; } toggleCustomRoom(); toggleTeacher2(); document.getElementById('addModal').classList.add('open'); }
-        function saveLesson() { const g = document.getElementById('inputGroup').value, s = document.getElementById('inputSubject').value, t = document.getElementById('inputTeacher').value, t2 = document.getElementById('inputTeacher2').value, note = document.getElementById('inputNote').value, type = document.getElementById('inputType').value; let r = document.getElementById('inputRoomSelect').value; if(r==='custom') r = document.getElementById('inputRoomNumber').value; if(!s) { customAlert('Введіть назву'); return; } saveState(); if(editState.isNew) lessons.push({ id: 'l'+Date.now(), week: currentWeek, day: editState.day, slot: editState.slot, group: g, subject: s, teacher: t, teacher2: t2, type, room: r, note }); else { const i = lessons.findIndex(l => l.id === editState.lessonId); if(i>-1) Object.assign(lessons[i], { group: g, subject: s, teacher: t, teacher2: t2, type, room: r, note }); } triggerAutoSave(); closeModal(); renderLessons(); checkConflicts(); }
-        async function deleteLesson(id, e) { e.stopPropagation(); if(await customConfirm('Видалити?')) { saveState(); lessons = lessons.filter(l=>l.id!==id); triggerAutoSave(); renderLessons(); checkConflicts(); } }
+        function openEditModal(l) { 
+            editState = { isNew: false, lessonId: l.id };
+            document.getElementById('modalTitle').innerText = 'Редагування';
+            document.getElementById('inputGroup').value = l.group;
+            document.getElementById('inputSubject').value = l.subject;
+            document.getElementById('inputType').value = l.type;
+            document.getElementById('inputTeacher').value = l.teacher;
+            document.getElementById('inputTeacher2').value = l.teacher2;
+            document.getElementById('inputNote').value = l.note;
+            
+            // Парсимо аудиторію
+            const sel = document.getElementById('inputRoomSelect');
+            if (l.room && typeof l.room === 'string' && l.room.startsWith('Аудиторія ')) {
+                // Це "Аудиторія 201"
+                sel.value = 'auditorium';
+                const roomNum = l.room.replace('Аудиторія ', '');
+                document.getElementById('inputRoomNumber').value = roomNum;
+            } else {
+                // Це звичайна аудиторія зі списку
+                const option = Array.from(sel.options).find(opt => opt.value === l.room);
+                if (option) {
+                    sel.value = l.room;
+                    document.getElementById('inputRoomNumber').value = '';
+                } else {
+                    // Якщо аудиторії немає в списку, додаємо як "Аудиторія"
+                    sel.value = 'auditorium';
+                    document.getElementById('inputRoomNumber').value = l.room;
+                }
+            }
+            
+            toggleCustomRoom();
+            toggleTeacher2();
+            document.getElementById('addModal').classList.add('open');
+        }
+        function saveLesson() { 
+            const g = document.getElementById('inputGroup').value;
+            const s = document.getElementById('inputSubject').value;
+            const t = document.getElementById('inputTeacher').value;
+            const t2 = document.getElementById('inputTeacher2').value;
+            const note = document.getElementById('inputNote').value;
+            const type = document.getElementById('inputType').value;
+            
+            let r = document.getElementById('inputRoomSelect').value;
+            if(r === 'auditorium') {
+                const roomNum = document.getElementById('inputRoomNumber').value;
+                r = roomNum ? `Аудиторія ${roomNum}` : '';
+            } else if (!r || r === '') {
+                // Якщо не вибрано аудиторію, залишаємо порожнім
+                r = '';
+            }
+            
+            if(!s) { customAlert('Введіть назву'); return; }
+            
+            if(editState.isNew) {
+                lessons.push({ id: 'l'+Date.now(), week: currentWeek, day: editState.day, slot: editState.slot, group: g, subject: s, teacher: t, teacher2: t2, type, room: r, note });
+            } else {
+                const i = lessons.findIndex(l => l.id === editState.lessonId);
+                if(i>-1) Object.assign(lessons[i], { group: g, subject: s, teacher: t, teacher2: t2, type, room: r, note });
+            }
+            
+            updateListsFromLessons();
+            triggerAutoSave();
+            closeModal();
+            renderLessons();
+            checkConflicts();
+        }
+        async function deleteLesson(id, e) { e.stopPropagation(); if(await customConfirm('Видалити?')) { lessons = lessons.filter(l=>l.id!==id); triggerAutoSave(); renderLessons(); checkConflicts(); } }
         
         let duplicateState = {
             active: false,
@@ -2838,9 +2948,6 @@
                 }
             }
             
-            // Зберігаємо стан перед дублюванням
-            saveState();
-            
             // Створюємо нову пару
             const newLesson = {
                 ...duplicateState.sourceLesson,
@@ -2895,8 +3002,15 @@
         }
         
         function closeModal() { document.getElementById('addModal').classList.remove('open'); }
-        function clearForm() { ['inputGroup','inputSubject','inputTeacher','inputTeacher2','inputNote','inputRoomNumber'].forEach(id=>document.getElementById(id).value=''); document.getElementById('inputRoomSelect').value=''; document.getElementById('inputType').value='Лекція'; toggleCustomRoom(); toggleTeacher2(); }
-        function toggleCustomRoom() { document.getElementById('customRoomGroup').style.display = document.getElementById('inputRoomSelect').value === 'custom' ? 'block' : 'none'; }
+        function clearForm() { 
+            ['inputGroup','inputSubject','inputTeacher','inputTeacher2','inputNote','inputRoomNumber'].forEach(id=>document.getElementById(id).value=''); 
+            const roomSelect = document.getElementById('inputRoomSelect');
+            roomSelect.selectedIndex = 0; // Вибираємо першу опцію "Оберіть..."
+            document.getElementById('inputType').value='Лекція'; 
+            toggleCustomRoom(); 
+            toggleTeacher2(); 
+        }
+        function toggleCustomRoom() { document.getElementById('customRoomGroup').style.display = document.getElementById('inputRoomSelect').value === 'auditorium' ? 'block' : 'none'; }
         function toggleTeacher2() { document.getElementById('teacher2Group').style.display = document.getElementById('inputType').value === 'Лабораторна' ? 'block' : 'none'; }
         
         // --- СТАТИСТИКА ---
@@ -3419,16 +3533,10 @@
         }
         
         function updateFilterButtonState(isActive) {
-            const btnGuest = document.getElementById('filterBtnGuest');
             const btnAdmin = document.getElementById('filterBtnAdmin');
             
             if (isActive) {
                 // Активний стан - жовта кнопка з іншою іконкою
-                if (btnGuest) {
-                    btnGuest.classList.add('btn-filter-active');
-                    btnGuest.innerHTML = '<i class="fa-solid fa-filter-circle-xmark"></i> Скинути';
-                    btnGuest.title = 'Скинути фільтри';
-                }
                 if (btnAdmin) {
                     btnAdmin.classList.add('btn-filter-active');
                     btnAdmin.innerHTML = '<i class="fa-solid fa-filter-circle-xmark"></i> Скинути';
@@ -3436,11 +3544,6 @@
                 }
             } else {
                 // Неактивний стан - звичайна кнопка
-                if (btnGuest) {
-                    btnGuest.classList.remove('btn-filter-active');
-                    btnGuest.innerHTML = '<i class="fa-solid fa-filter"></i> Фільтри';
-                    btnGuest.title = 'Пошук та фільтри';
-                }
                 if (btnAdmin) {
                     btnAdmin.classList.remove('btn-filter-active');
                     btnAdmin.innerHTML = '<i class="fa-solid fa-filter"></i> Фільтри';
@@ -3460,6 +3563,8 @@
                 day: document.getElementById('advSearchDay').value
             };
             
+            console.log('[FILTER DEBUG] originalValues:', originalValues);
+            
             // Створюємо фільтри з toLowerCase для пошуку
             const filters = {
                 teacher: originalValues.teacher.toLowerCase(),
@@ -3470,8 +3575,13 @@
                 day: originalValues.day
             };
             
+            console.log('[FILTER DEBUG] filters:', filters);
+            console.log('[FILTER DEBUG] Object.values(filters):', Object.values(filters));
+            
             // Перевіряємо чи хоч один фільтр заповнений
             const hasFilters = Object.values(filters).some(v => v !== '');
+            
+            console.log('[FILTER DEBUG] hasFilters:', hasFilters);
             
             if (!hasFilters) {
                 customAlert('Оберіть хоча б один параметр для пошуку!');
@@ -3480,6 +3590,8 @@
             
             advancedSearchFilters = filters;
             advancedSearchFiltersOriginal = originalValues;
+            
+            console.log('[FILTER DEBUG] Filters applied, closing modal');
             
             // Очищаємо highlight, якщо він був активний
             if (highlightState.active) {
@@ -3490,6 +3602,8 @@
             
             renderLessons();
             closeAdvancedSearch();
+            
+            console.log('[FILTER DEBUG] Updating button state');
             
             // Оновлюємо стан кнопки
             updateFilterButtonState(true);
@@ -3535,16 +3649,16 @@
             const filters = advancedSearchFilters;
             
             if (filters.teacher) {
-                const teacherMatch = (lesson.teacher && lesson.teacher.toLowerCase().includes(filters.teacher)) ||
-                                   (lesson.teacher2 && lesson.teacher2.toLowerCase().includes(filters.teacher));
+                const teacherMatch = (lesson.teacher && typeof lesson.teacher === 'string' && lesson.teacher.toLowerCase().includes(filters.teacher)) ||
+                                   (lesson.teacher2 && typeof lesson.teacher2 === 'string' && lesson.teacher2.toLowerCase().includes(filters.teacher));
                 if (!teacherMatch) return false;
             }
             
-            if (filters.group && (!lesson.group || !lesson.group.toLowerCase().includes(filters.group))) {
+            if (filters.group && (!lesson.group || typeof lesson.group !== 'string' || !lesson.group.toLowerCase().includes(filters.group))) {
                 return false;
             }
             
-            if (filters.subject && (!lesson.subject || !lesson.subject.toLowerCase().includes(filters.subject))) {
+            if (filters.subject && (!lesson.subject || typeof lesson.subject !== 'string' || !lesson.subject.toLowerCase().includes(filters.subject))) {
                 return false;
             }
             
@@ -3552,7 +3666,7 @@
                 return false;
             }
             
-            if (filters.room && (!lesson.room || !lesson.room.toLowerCase().includes(filters.room))) {
+            if (filters.room && (!lesson.room || typeof lesson.room !== 'string' || !lesson.room.toLowerCase().includes(filters.room))) {
                 return false;
             }
             
