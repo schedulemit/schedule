@@ -1595,7 +1595,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxkBploVXjfU0Z1EKg1FuB0DLeLzoaVyKaWupn_9Iu5AJyr9govQF--ppGq9JLJDKu00Q/exec';
         const ADMIN_PASSWORD = 'admin';
@@ -2645,6 +2645,12 @@
         }
         
         function highlightSlotsForMove(sourceLesson) {
+            // Спочатку очищаємо всі попередні підсвічування
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.classList.remove('move-available', 'move-conflict');
+            });
+            
+            // Тепер підсвічуємо слоти для поточного тижня
             document.querySelectorAll('.time-slot').forEach(slot => {
                 const day = parseInt(slot.dataset.day);
                 const slotNum = parseInt(slot.dataset.slot);
@@ -2903,7 +2909,8 @@
             const conflicts = lessons.filter(l => 
                 l.week === targetWeek && 
                 l.day === targetDay && 
-                l.slot === targetSlot
+                l.slot === targetSlot &&
+                l.id !== sourceLesson.id  // Виключаємо саму source lesson з перевірки
             );
             
             for (const existing of conflicts) {
