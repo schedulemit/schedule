@@ -396,12 +396,66 @@
         .week-btn { padding: 6px 16px; border: none; background: transparent; font-size: 0.9rem; font-weight: 700; color: #94a3b8; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-family: 'Inter', sans-serif; }
         .week-btn.active { background: white; color: var(--univ-blue); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 
-        #action-panel, #filter-panel { display: none; position: absolute; top: 110%; left: 0; right: 0; padding: 0.5rem; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); z-index: 50; text-align: center; font-weight: 600; font-size: 0.9rem; align-items: center; justify-content: center; gap: 1rem; }
+        /* Панелі дій - фіксовані внизу екрану */
+        #action-panel, #filter-panel, #duplicate-panel { 
+            display: none; 
+            position: fixed; 
+            bottom: 20px; 
+            left: 50%; 
+            transform: translateX(-50%) translateY(100px);
+            padding: 0.75rem 1.5rem; 
+            border-radius: 0.75rem; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2), 0 8px 10px -6px rgba(0,0,0,0.1); 
+            z-index: 1000; 
+            text-align: center; 
+            font-weight: 600; 
+            font-size: 1rem; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 1rem;
+            min-width: 300px;
+            max-width: 90vw;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        #action-panel.show, #filter-panel.show, #duplicate-panel.show { 
+            display: flex; 
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
         #action-panel.mode-swap { background: var(--swap-mode-bg); border: 2px solid var(--swap-mode-border); color: #064e3b; }
         #action-panel.mode-move { background: var(--move-mode-bg); border: 2px solid var(--move-mode-border); color: #1e40af; }
-        #action-panel.show { display: flex; }
+        #duplicate-panel { background: #f0fdf4; border: 2px solid #22c55e; color: #065f46; }
         #filter-panel { background: #eff6ff; border: 2px solid #3b82f6; color: #1e3a8a; }
-        #filter-panel.show { display: flex; }
+        
+        body.dark-mode #action-panel.mode-swap { background: #064e3b; border-color: #34d399; color: #d1fae5; }
+        body.dark-mode #action-panel.mode-move { background: #1e3a8a; border-color: #60a5fa; color: #dbeafe; }
+        body.dark-mode #duplicate-panel { background: #064e3b; border-color: #22c55e; color: #d1fae5; }
+        body.dark-mode #filter-panel { background: #1e3a8a; border-color: #3b82f6; color: #dbeafe; }
+        
+        .panel-btn {
+            background: white;
+            border: none;
+            color: inherit;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .panel-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+        }
+        
+        body.dark-mode .panel-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
 
         #compare-panel { display: none; background: #fff7ed; border: 2px solid #f97316; color: #c2410c; flex-direction: column; gap: 10px; padding: 15px; border-radius: 0.75rem; margin-bottom: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         #compare-panel.show { display: flex; }
@@ -811,6 +865,28 @@
             .compare-actions button { width: 100%; }
             .compare-legend { flex-wrap: wrap; gap: 10px; font-size: 0.75rem; }
             .compare-legend > div:last-child { width: 100%; margin-left: 0; margin-top: 5px; text-align: center; }
+
+        @media (max-width: 768px) {
+            #action-panel, #filter-panel, #duplicate-panel {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                transform: translateX(0) translateY(100px);
+                min-width: auto;
+                max-width: none;
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+            
+            #action-panel.show, #filter-panel.show, #duplicate-panel.show {
+                transform: translateX(0) translateY(0);
+            }
+            
+            .panel-btn {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+            }
+        }
             
             /* Покращена панель фільтрів на мобільних */
             #filter-panel { 
@@ -1154,10 +1230,18 @@
         
         <div id="action-panel">
             <span id="action-msg"></span>
-            <button onclick="cancelAction()" style="background:white; border:none; color:inherit; font-weight:700; padding:4px 8px; border-radius:4px; cursor:pointer;">Скасувати</button>
+            <button class="panel-btn" onclick="cancelAction()">Скасувати</button>
         </div>
         
-        <div id="filter-panel"><span id="filter-msg"><i class="fa-solid fa-filter"></i> Фільтр</span><button onclick="clearHighlight()" style="background:white; border:none; color:#1e3a8a; font-weight:700; padding:4px 8px; border-radius:4px; cursor:pointer;">Скинути (Esc)</button></div>
+        <div id="duplicate-panel">
+            <span><i class="fa-solid fa-copy"></i> <b>Дублювання:</b> <span id="duplicate-lesson-title"></span></span>
+            <button class="panel-btn" onclick="cancelDuplication()">Скасувати</button>
+        </div>
+        
+        <div id="filter-panel">
+            <span id="filter-msg"><i class="fa-solid fa-filter"></i> Фільтр</span>
+            <button class="panel-btn" onclick="clearHighlight()">Скинути (Esc)</button>
+        </div>
     </div>
 
     <div class="schedule-grid" id="schedule-container">
@@ -1595,7 +1679,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxkBploVXjfU0Z1EKg1FuB0DLeLzoaVyKaWupn_9Iu5AJyr9govQF--ppGq9JLJDKu00Q/exec';
         const ADMIN_PASSWORD = 'admin';
@@ -2866,6 +2950,11 @@
             // Вмикаємо режим дублювання
             document.body.classList.add('mode-duplicate');
             
+            const panel = document.getElementById('duplicate-panel');
+            const titleSpan = document.getElementById('duplicate-lesson-title');
+            titleSpan.textContent = lesson.subject;
+            panel.classList.add('show');
+            
             // Підсвічуємо всі слоти
             highlightSlotsForDuplication(lesson);
         }
@@ -2976,6 +3065,7 @@
         function cancelDuplication() {
             duplicateState = { active: false, sourceLesson: null, targetWeek: 1 };
             document.body.classList.remove('mode-duplicate');
+            document.getElementById('duplicate-panel').classList.remove('show');
             
             // Прибираємо підсвічування
             document.querySelectorAll('.time-slot').forEach(slot => {
