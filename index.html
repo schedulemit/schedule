@@ -2921,11 +2921,11 @@
                 if(i>-1) Object.assign(lessons[i], { group: g, subject: s, teacher: t, teacher2: t2, type, room: r, note });
             }
             
-            updateListsFromLessons();
-            triggerAutoSave();
-            closeModal();
-            renderLessons();
-            checkConflicts();
+            // updateListsFromLessons();
+            // triggerAutoSave();
+            // closeModal();
+            // renderLessons();
+            // checkConflicts();
         }
         async function deleteLesson(id, e) { e.stopPropagation(); if(await customConfirm('Видалити?')) { lessons = lessons.filter(l=>l.id!==id); triggerAutoSave(); renderLessons(); checkConflicts(); } }
         
