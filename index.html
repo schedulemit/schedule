@@ -1707,15 +1707,15 @@
             });
         }
         
-        function customConfirm(message, title = 'Підтвердження') {
+        function customConfirm(message, title = 'Підтвердження', okText = 'OK', cancelText = 'Скасувати') {
             return new Promise((resolve) => {
                 customAlertResolve = resolve;
-                
+
                 // Іконка питання для confirm
                 document.getElementById('customAlertIcon').innerHTML = '<i class="fa-solid fa-circle-question" style="color: #f59e0b;"></i>';
                 document.getElementById('customAlertTitle').textContent = title;
                 document.getElementById('customAlertMessage').textContent = message;
-                document.getElementById('customAlertActions').innerHTML = '<button class="btn btn-secondary" onclick="closeCustomAlert(false)" style="min-width: 100px;">Скасувати</button><button class="btn btn-primary" onclick="closeCustomAlert(true)" style="min-width: 100px;">OK</button>';
+                document.getElementById('customAlertActions').innerHTML = `<button class="btn btn-secondary" onclick="closeCustomAlert(false)" style="min-width: 100px;">${cancelText}</button><button class="btn btn-primary" onclick="closeCustomAlert(true)" style="min-width: 100px;">${okText}</button>`;
                 document.getElementById('customAlertModal').classList.add('open');
             });
         }
@@ -1997,11 +1997,51 @@
                 reloadAll();
             } else { customAlert('Невірний пароль', 'Помилка', 'error'); document.getElementById('adminPass').value=''; }
         }
-        function logout() {
-            setAdminMode(false);
-            exitCompare();
-            reloadAll();
+    
+    
+        async function logout() {
+        // Якщо є незбережені зміни - питаємо
+        if (unsavedChanges) {
+            const shouldSave = await customConfirm(
+                '⚠️ Є незбережені зміни!\n\nЗберегти перед виходом?',
+                'Попередження',
+                'Зберегти',      // Текст кнопки OK
+                'Скасувати'      // Текст кнопки Cancel
+            );
+
+            if (shouldSave) {
+                // Зберігаємо БЕЗ додаткового підтвердження
+                await sendData('admin_save', { lessons: lessons });
+                customAlert('Збережено!', 'Успішно', 'success');
+                unsavedChanges = false;
+                // Після збереження - виходимо
+            } else {
+                // Натиснув "Скасувати" - залишаємося в адмінці
+                return;
+            }
         }
+
+        // Виходимо
+        setAdminMode(false);
+        exitCompare();
+        reloadAll();
+    }
+
+
+
+    // ===================================================================
+    // ДОДАТКОВО: Захист при закритті вкладки браузера
+    // ===================================================================
+
+       window.addEventListener('beforeunload', (e) => {
+        // Якщо є незбережені зміни - показуємо попередження браузера
+        if (unsavedChanges) {
+            e.preventDefault();
+            e.returnValue = ''; // Сучасні браузери ігнорують текст, показують стандартне повідомлення
+            return '';
+        }
+    });
+        
         function setAdminMode(val) {
             // Блокуємо встановлення адмін режиму в readonly
             if(sessionStorage.getItem('readonlyMode') === 'true' && val === true) {
@@ -2281,8 +2321,8 @@
             if (!hasUnsavedChanges()) {
                 return; // Тихо виходимо, бо кнопка disabled
             }
-            
-            if(!(await customConfirm("Зберегти зміни у розклад?"))) return;
+
+            if(!(await customConfirm("Зберегти зміни у розклад?", "Підтвердження", "Зберегти", "Скасувати"))) return;
             await sendData('admin_save', { lessons: lessons });
             customAlert('Збережено!', 'Успішно', 'success');
             unsavedChanges = false;
