@@ -1574,6 +1574,9 @@
             transform: scale(1.05);
         }
         </style>
+        
+        <!-- SheetJS з підтримкою стилів для експорту в Excel -->
+        <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     </head>
 <body>
     
@@ -1626,8 +1629,8 @@
 
                 <div class="guest-controls">
                     <button class="btn-sync" id="reloadBtnGuest" onclick="reloadAll()" title="Оновити"><i class="fa-solid fa-rotate"></i></button>
-                    <button class="btn-sync" id="multiChoiceBtn" onclick="toggleMultiChoiceMode()" data-tooltip="Оберіть пару та 1-3 варіанти перенесення"><i class="fa-solid fa-calendar-days"></i> Варіанти перенесення</button>
-                    <button class="btn-sync btn-primary" id="proposeBtnGuest" onclick="proposeChanges()"><i class="fa-solid fa-paper-plane"></i> Запропонувати зміни</button>
+                    <button class="btn-sync" id="multiChoiceBtn" onclick="toggleMultiChoiceMode()" data-tooltip="Варіанти перенесення пари"><i class="fa-solid fa-calendar-days"></i> Варіанти перенесення</button>
+                    <button class="btn-sync btn-primary" id="proposeBtnGuest" onclick="proposeChanges()"><i class="fa-solid fa-paper-plane"></i> Узгодити зміни</button>
                     <button class="btn-sync" id="multiChoiceCancelBtn" onclick="toggleMultiChoiceMode()" style="display:none;"><i class="fa-solid fa-xmark"></i> Скасувати</button>
                 </div>
 
@@ -1650,7 +1653,8 @@
                 <button class="btn-sync" id="darkModeToggle" onclick="toggleDarkMode()" title="Темна тема">
                     <i class="fa-solid fa-moon"></i>
                 </button>
-                <button class="btn-sync btn-export" onclick="exportToImage()" title="PNG"><i class="fa-solid fa-camera"></i></button>
+                <button class="btn-sync btn-export" onclick="exportToExcel()" title="Експорт в Excel" style="color: #059669; border-color: #a7f3d0; background: #d1fae5;"><i class="fa-solid fa-file-excel"></i></button>
+                <button class="btn-sync btn-export" onclick="exportToImage()" title="Експорт в PNG"><i class="fa-solid fa-camera"></i></button>
                 <button class="btn-sync" onclick="openHelp()" title="Допомога" style="color: #8b5cf6; border-color: #ddd6fe;"><i class="fa-solid fa-circle-question"></i></button>
             </div>
         </div>
@@ -1814,7 +1818,7 @@
                         <div class="help-button-item">
                             <span class="help-btn-demo" style="background: #3b82f6; color: white;"><i class="fa-solid fa-paper-plane"></i></span>
                             <div>
-                                <strong>Запропонувати зміни</strong>
+                                <strong>Узгодити зміни</strong>
                                 <p>Відправити свої правки на розгляд адміну</p>
                             </div>
                         </div>
@@ -1886,6 +1890,14 @@
                             <div>
                                 <strong>Допомога</strong>
                                 <p>Ця інструкція :)</p>
+                            </div>
+                        </div>
+                        
+                        <div class="help-button-item">
+                            <span class="help-btn-demo" style="color: #059669; background: #d1fae5; border-color: #a7f3d0;"><i class="fa-solid fa-file-excel"></i></span>
+                            <div>
+                                <strong>Експорт Excel</strong>
+                                <p>Зберегти розклад в форматі Excel (.xlsx) з окремими аркушами для кожного тижня</p>
                             </div>
                         </div>
                         
@@ -2023,7 +2035,7 @@
                 <!-- Контакти -->
                 <div class="help-section" style="background: #f8fafc; padding: 1rem; border-radius: 0.5rem; margin-top: 1.5rem;">
                     <h3 class="help-title" style="margin-top: 0;">📧 Потрібна допомога?</h3>
-                    <p style="margin: 0.5rem 0;">Якщо у вас виникли питання або знайшли помилку, напишіть нам на адресу: <strong><a href="/cdn-cgi/l/" class="__cf_email__" data-cfemail="b6dfc2dbddd7d0d3d2c4d7f6d1dbd7dfda98d5d9db">itmkafedra@gmail.com</a></strong></p>
+                   <p style="margin: 0.5rem 0;">Якщо у вас виникли питання або знайшли помилку, напишіть нам на адресу: <strong><a href="/cdn-cgi/l/" class="__cf_email__" data-cfemail="b6dfc2dbddd7d0d3d2c4d7f6d1dbd7dfda98d5d9db">itmkafedra@gmail.com</a></strong></p>
                     <p style="margin: 0.5rem 0; font-size: 0.85rem; color: #64748b;">
                         <strong>Версія:</strong> 2.0 | 
                         <strong>Оновлено:</strong> Січень 2026
@@ -2273,7 +2285,7 @@
                                    multiChoiceState.sourceLesson && 
                                    multiChoiceState.targets.length > 0;
             
-            // Кнопка "Запропонувати зміни" (гість) - активна якщо є зміни АБО мульти-вибір
+            // Кнопка "Узгодити зміни" (гість) - активна якщо є зміни АБО мульти-вибір
             const proposeBtn = document.getElementById('proposeBtnGuest');
             if (proposeBtn) {
                 if (hasChanges || hasMultiChoice) {
@@ -2341,7 +2353,7 @@
             
             if(isReadOnly) {
                 // Приховуємо ТІЛЬКИ кнопку "Вхід" для викладачів
-                // Викладачі можуть пропонувати зміни через кнопку "Запропонувати зміни"
+                // Викладачі можуть пропонувати зміни через кнопку "Узгодити зміни"
                 const loginBtn = document.getElementById('loginBtn');
                 if(loginBtn) {
                     loginBtn.style.display = 'none';
@@ -2970,16 +2982,57 @@
             if (hasMultiChoice && hasRegularChanges) {
                 // Обидва типи змін
                 const changes = calculateChanges(liveLessons, lessons);
-                const totalRegular = changes.added.length + changes.modified.length + changes.removed.length;
-                confirmMessage = `Надіслати зміни на затвердження?\n\n` +
-                    `• Мульти-перенесення пари "${multiChoiceState.sourceLesson.subject}" на ${multiChoiceState.targets.length} варіантів\n` +
-                    `• Інші зміни: ${totalRegular} ${totalRegular === 1 ? 'пара' : totalRegular < 5 ? 'пари' : 'пар'}`;
+                const added = changes.added.length;
+                const modified = changes.modified.length;
+                const removed = changes.removed.length;
+                const variantCount = multiChoiceState.targets.length;
+                const variantWord = variantCount === 1 ? 'варіант' : (variantCount < 5 ? 'варіанти' : 'варіантів');
+                confirmMessage = `Узгодити зміни?\n\n` +
+                    `• Перенесення пари "${multiChoiceState.sourceLesson.subject}" на ${variantCount} ${variantWord}\n` +
+                    `• Інші зміни: додано ${added}, змінено ${modified}, видалено ${removed}`;
             } else if (hasMultiChoice) {
                 // Тільки мульти-вибір
-                confirmMessage = `Надіслати пропозицію для переносу пари "${multiChoiceState.sourceLesson.subject}" на ${multiChoiceState.targets.length} варіантів?`;
+                const variantCount = multiChoiceState.targets.length;
+                const variantWord = variantCount === 1 ? 'варіант' : (variantCount < 5 ? 'варіанти' : 'варіантів');
+                confirmMessage = `Узгодити перенесення пари "${multiChoiceState.sourceLesson.subject}" на ${variantCount} ${variantWord}?`;
             } else {
-                // Тільки звичайні зміни
-                confirmMessage = "Надіслати зміни на затвердження?";
+                // Тільки звичайні зміни - детальний розбір
+                const changes = calculateChanges(liveLessons, lessons);
+                const added = changes.added.length;
+                const modified = changes.modified.length;
+                const removed = changes.removed.length;
+                
+                // Формуємо детальне повідомлення
+                if (added === 1 && modified === 0 && removed === 0) {
+                    confirmMessage = `Узгодити додавання пари "${changes.added[0].subject}"?`;
+                } else if (added === 0 && modified === 1 && removed === 0) {
+                    // Перевіряємо чи це перенесення чи редагування
+                    const modifiedLesson = changes.modified[0];
+                    const originalLesson = liveLessons.find(l => String(l.id) === String(modifiedLesson.id));
+                    
+                    // Якщо змінились тільки day/slot/week - це перенесення
+                    const isMove = originalLesson && 
+                        (originalLesson.day !== modifiedLesson.day || 
+                         originalLesson.slot !== modifiedLesson.slot || 
+                         originalLesson.week !== modifiedLesson.week) &&
+                        originalLesson.subject === modifiedLesson.subject &&
+                        originalLesson.teacher === modifiedLesson.teacher &&
+                        originalLesson.type === modifiedLesson.type &&
+                        originalLesson.group === modifiedLesson.group &&
+                        originalLesson.room === modifiedLesson.room;
+                    
+                    if (isMove) {
+                        confirmMessage = `Узгодити перенесення пари "${modifiedLesson.subject}"?`;
+                    } else {
+                        confirmMessage = `Узгодити зміни в парі "${modifiedLesson.subject}"?`;
+                    }
+                } else if (added === 0 && modified === 0 && removed === 1) {
+                    const removedLesson = liveLessons.find(l => String(l.id) === String(changes.removed[0].id));
+                    confirmMessage = `Узгодити видалення пари "${removedLesson ? removedLesson.subject : '(пара)'}"?`;
+                } else {
+                    // Кілька змін
+                    confirmMessage = `Узгодити зміни?\n\nДодано: ${added}, змінено: ${modified}, видалено: ${removed}`;
+                }
             }
             
             if (!(await customConfirm(confirmMessage))) {
@@ -4645,6 +4698,473 @@
         function handleBodyClick(e) { if(!e.target.closest('.mobile-actions')) closeAllMobileMenus(); if(highlightState.active && !e.target.closest('.lesson-card') && !e.target.closest('.top-bar') && !e.target.closest('.modal-box')) clearHighlight(); }
         function updateLiveStatus() { const now = new Date(); const d = now.getDay(); const m = now.getHours()*60 + now.getMinutes(); document.querySelectorAll('.time-slot.drag-over').forEach(el => el.classList.remove('drag-over')); document.querySelectorAll('.day-column').forEach(c => c.classList.remove('current-day')); if(d>=1 && d<=5) document.getElementById(`day-${d}`).classList.add('current-day'); document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('current-now')); if(d>=1 && d<=5) { const slot = TIME_SLOTS[d].find(s => m >= s.start && m <= s.end); if(slot) document.querySelector(`.time-slot[data-day="${d}"][data-slot="${slot.id}"]`)?.classList.add('current-now'); } }
         function exportToImage() { const el = document.getElementById('schedule-container'); const h = el.style.height; el.style.height = 'auto'; html2canvas(el, { scale: 2, backgroundColor: '#f1f5f9' }).then(c => { const a = document.createElement('a'); a.download = `schedule_week_${currentWeek}.png`; a.href = c.toDataURL(); a.click(); el.style.height = h; }); }
+        
+        /**
+         * Експорт розкладу в Excel з двома аркушами (Тиждень I та Тиждень II)
+         */
+        function exportToExcel() {
+            try {
+                // Створюємо нову книгу
+                const wb = XLSX.utils.book_new();
+                
+                // ========== АРКУШ 1: Тиждень I ==========
+                const week1Grid = createWeekGrid(1);
+                const ws1 = XLSX.utils.aoa_to_sheet(week1Grid);
+                
+                // Об'єднуємо клітинки для заголовка (A1:F1)
+                if (!ws1['!merges']) ws1['!merges'] = [];
+                ws1['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }); // Рядок 0, колонки 0-5
+                
+                // Об'єднуємо клітинки для дати (A2:F2)
+                ws1['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: 5 } });
+                
+                // Встановлюємо ширину колонок
+                ws1['!cols'] = [
+                    { wch: 10 },  // Номер пари
+                    { wch: 25 },  // Понеділок
+                    { wch: 25 },  // Вівторок
+                    { wch: 25 },  // Середа
+                    { wch: 25 },  // Четвер
+                    { wch: 25 }   // П'ятниця
+                ];
+                
+                // Застосовуємо стилі
+                applyExcelStyles(ws1, week1Grid);
+                
+                // Налаштування друку та закріплення для Тижня I
+                setupPageSettings(ws1);
+                
+                XLSX.utils.book_append_sheet(wb, ws1, 'Тиждень I');
+                
+                // ========== АРКУШ 2: Тиждень II ==========
+                const week2Grid = createWeekGrid(2);
+                const ws2 = XLSX.utils.aoa_to_sheet(week2Grid);
+                
+                // Об'єднуємо клітинки для заголовка та дати
+                if (!ws2['!merges']) ws2['!merges'] = [];
+                ws2['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } });
+                ws2['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: 5 } });
+                
+                ws2['!cols'] = [
+                    { wch: 10 },
+                    { wch: 25 },
+                    { wch: 25 },
+                    { wch: 25 },
+                    { wch: 25 },
+                    { wch: 25 }
+                ];
+                
+                // Застосовуємо стилі
+                applyExcelStyles(ws2, week2Grid);
+                
+                // Налаштування друку та закріплення для Тижня II
+                setupPageSettings(ws2);
+                
+                XLSX.utils.book_append_sheet(wb, ws2, 'Тиждень II');
+                
+                // Зберігаємо файл
+                const date = new Date().toISOString().split('T')[0];
+                XLSX.writeFile(wb, `Розклад_МІТ_${date}.xlsx`);
+                
+            } catch (error) {
+                console.error('Помилка експорту в Excel:', error);
+                customAlert('Помилка при створенні Excel файлу: ' + error.message, 'Помилка', 'error');
+            }
+        }
+        
+        /**
+         * Застосовує стилі до Excel аркушу
+         */
+        function applyExcelStyles(ws, grid) {
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            
+            // Уніфіковані кольори для всіх експортів (добре виглядають при ч/б друці)
+            const headerBg = { rgb: "D4BF9F" };      // Теплий бежевий (як в PDF)
+            const headerText = { rgb: "3D3020" };    // Темно-коричневий
+            const slotBg = { rgb: "FAF8F3" };        // Світло-бежевий
+            const slotText = { rgb: "3D3020" };      // Темно-коричневий
+            const dataBg = { rgb: "FFFFFF" };        // Білий
+            const dataText = { rgb: "5C4D3D" };      // Коричнево-сірий
+            const borderColor = { rgb: "D4BF9F" };   // Бежевий для рамок
+            
+            // Базові стилі рамок
+            const thinBorder = {
+                style: "thin",
+                color: borderColor
+            };
+            
+            const mediumBorder = {
+                style: "medium",
+                color: { rgb: "B8956A" }  // Темніший бежевий
+            };
+            
+            // Визначаємо які рядки є роздільниками між СЛОТАМИ та між ПАРАМИ
+            const slotSeparatorRows = new Set();
+            const lessonSeparatorRows = new Set();
+            for (let R = 0; R < grid.length; R++) {
+                const row = grid[R];
+                // Шукаємо маркери роздільників
+                if (row[0] === '__SLOT_SEPARATOR__') {
+                    slotSeparatorRows.add(R);
+                } else if (row[0] === '__LESSON_SEPARATOR__') {
+                    lessonSeparatorRows.add(R);
+                }
+            }
+            
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (!ws[cellAddress]) continue;
+                    
+                    const cell = ws[cellAddress];
+                    
+                    // Прибираємо маркери з видимого тексту
+                    if (cell.v === '__SLOT_SEPARATOR__' || cell.v === '__LESSON_SEPARATOR__') {
+                        cell.v = '';
+                    }
+                    
+                    // Ініціалізуємо стиль якщо немає
+                    if (!cell.s) cell.s = {};
+                    
+                    // Перевіряємо чи це роздільник між слотами чи між парами
+                    const isSlotSeparator = slotSeparatorRows.has(R);
+                    const isLessonSeparator = lessonSeparatorRows.has(R);
+                    
+                    // Рядок 0: Заголовок "РОЗКЛАД КАФЕДРИ МІТ"
+                    if (R === 0) {
+                        cell.s = {
+                            font: { 
+                                bold: true, 
+                                sz: 16, 
+                                color: headerText,
+                                name: 'Arial'
+                            },
+                            fill: { 
+                                fgColor: headerBg 
+                            },
+                            alignment: { 
+                                horizontal: 'center', 
+                                vertical: 'center' 
+                            },
+                            border: {
+                                top: mediumBorder,
+                                bottom: mediumBorder,
+                                left: mediumBorder,
+                                right: mediumBorder
+                            }
+                        };
+                    }
+                    // Рядок 1: Дата створення
+                    else if (R === 1) {
+                        cell.s = {
+                            font: { 
+                                sz: 11, 
+                                color: slotText,
+                                name: 'Arial'
+                            },
+                            fill: { 
+                                fgColor: slotBg 
+                            },
+                            alignment: { 
+                                horizontal: 'center', 
+                                vertical: 'center' 
+                            },
+                            border: {
+                                bottom: thinBorder,
+                                left: mediumBorder,
+                                right: mediumBorder
+                            }
+                        };
+                    }
+                    // Рядок 3: Шапка таблиці (дні тижня)
+                    else if (R === 3) {
+                        cell.s = {
+                            font: { 
+                                bold: true, 
+                                sz: 12, 
+                                color: headerText,
+                                name: 'Arial'
+                            },
+                            fill: { 
+                                fgColor: headerBg 
+                            },
+                            alignment: { 
+                                horizontal: 'center', 
+                                vertical: 'center' 
+                            },
+                            border: {
+                                top: mediumBorder,
+                                bottom: mediumBorder,
+                                left: C === 0 ? mediumBorder : thinBorder,
+                                right: C === range.e.c ? mediumBorder : thinBorder
+                            }
+                        };
+                    }
+                    // Роздільники між парами в одному слоті
+                    else if (isLessonSeparator) {
+                        cell.s = {
+                            fill: { 
+                                fgColor: { rgb: "F5F5F5" }  // Світло-сірий
+                            },
+                            border: {
+                                left: C === 0 ? mediumBorder : thinBorder,
+                                right: C === range.e.c ? mediumBorder : thinBorder,
+                                top: thinBorder,
+                                bottom: thinBorder
+                            }
+                        };
+                    }
+                    // Роздільники між слотами
+                    else if (isSlotSeparator) {
+                        cell.s = {
+                            fill: { 
+                                fgColor: { rgb: "E2E8F0" }  // Темніший сірий
+                            },
+                            border: {
+                                left: C === 0 ? mediumBorder : thinBorder,
+                                right: C === range.e.c ? mediumBorder : thinBorder,
+                                top: mediumBorder,  // Товста рамка зверху
+                                bottom: mediumBorder  // Товста рамка знизу
+                            }
+                        };
+                    }
+                    // Колонка 0: Номери пар (1 пара, 2 пара...)
+                    else if (C === 0 && R > 3) {
+                        const isSlotLabel = cell.v && cell.v.toString().includes('пара');
+                        
+                        if (isSlotLabel) {
+                            cell.s = {
+                                font: { 
+                                    bold: true, 
+                                    sz: 11, 
+                                    color: slotText,
+                                    name: 'Arial'
+                                },
+                                fill: { 
+                                    fgColor: slotBg 
+                                },
+                                alignment: { 
+                                    horizontal: 'center', 
+                                    vertical: 'center' 
+                                },
+                                border: {
+                                    top: mediumBorder,
+                                    bottom: thinBorder,
+                                    left: mediumBorder,
+                                    right: mediumBorder
+                                }
+                            };
+                        } else {
+                            // Порожні клітинки в колонці номерів
+                            cell.s = {
+                                fill: { 
+                                    fgColor: slotBg 
+                                },
+                                border: {
+                                    left: mediumBorder,
+                                    right: mediumBorder,
+                                    top: thinBorder,
+                                    bottom: thinBorder
+                                }
+                            };
+                        }
+                    }
+                    // Дані пар (колонки 1-5)
+                    else if (R > 3 && C > 0) {
+                        const isEmpty = !cell.v || cell.v.toString().trim() === '';
+                        
+                        cell.s = {
+                            font: { 
+                                sz: 10, 
+                                color: dataText,
+                                name: 'Arial'
+                            },
+                            fill: { 
+                                fgColor: isEmpty ? { rgb: "F8FAFC" } : dataBg 
+                            },
+                            alignment: { 
+                                horizontal: 'left', 
+                                vertical: 'top',
+                                wrapText: true
+                            },
+                            border: {
+                                top: thinBorder,
+                                bottom: thinBorder,
+                                left: thinBorder,
+                                right: C === range.e.c ? mediumBorder : thinBorder
+                            }
+                        };
+                    }
+                }
+            }
+            
+            // Встановлюємо висоту рядків
+            if (!ws['!rows']) ws['!rows'] = [];
+            
+            ws['!rows'][0] = { hpt: 30 };  // Заголовок
+            ws['!rows'][1] = { hpt: 20 };  // Дата
+            ws['!rows'][2] = { hpt: 10 };  // Порожній рядок
+            ws['!rows'][3] = { hpt: 25 };  // Шапка таблиці
+            
+            // Встановлюємо висоту для роздільників
+            for (let R = 4; R <= range.e.r; ++R) {
+                if (lessonSeparatorRows.has(R)) {
+                    ws['!rows'][R] = { hpt: 5 };  // Роздільник між парами
+                } else if (slotSeparatorRows.has(R)) {
+                    ws['!rows'][R] = { hpt: 8 };  // Роздільник між слотами
+                }
+                // Інші рядки - автоматична висота
+            }
+        }
+        
+        /**
+         * Налаштовує параметри сторінки для друку та закріплення рядків
+         */
+        function setupPageSettings(ws) {
+            // Закріплення верхніх 4 рядків (рядки 0-3: заголовок, дата, порожній, шапка таблиці)
+            ws['!freeze'] = { xSplit: 0, ySplit: 4, topLeftCell: 'A5', activePane: 'bottomLeft' };
+            
+            // Налаштування друку
+            ws['!printHeader'] = { 
+                rows: [0, 3] // Друкувати рядки 0-3 на кожній сторінці
+            };
+            
+            // Налаштування сторінки
+            ws['!pageSetup'] = {
+                paperSize: 9,           // A4
+                orientation: 'portrait', // Книжкова орієнтація
+                scale: 100,              // Масштаб 100%
+                fitToWidth: 1,           // Вмістити по ширині на 1 сторінку
+                fitToHeight: 0,          // Висота не обмежена
+                horizontalDpi: 300,      // Роздільна здатність
+                verticalDpi: 300
+            };
+            
+            // Поля сторінки (в дюймах: 1,8 см = 0.709 дюйма)
+            ws['!margins'] = {
+                left: 0.709,    // 1,8 см
+                right: 0.709,   // 1,8 см
+                top: 0.75,      // ~1,9 см (стандартне)
+                bottom: 0.75,   // ~1,9 см (стандартне)
+                header: 0.3,
+                footer: 0.3
+            };
+            
+            // Вирівнювання по центру горизонтально
+            if (!ws['!pageSetup']) ws['!pageSetup'] = {};
+            ws['!pageSetup'].horizontalCentered = true;
+        }
+        
+        /**
+         * Створює сітку розкладу для конкретного тижня
+         * Формат: кожне поле кожної пари - окремий рядок таблиці
+         */
+        function createWeekGrid(week) {
+            const grid = [];
+            
+            // Заголовок
+            grid.push(['РОЗКЛАД КАФЕДРИ МІТ - ТИЖДЕНЬ ' + (week === 1 ? 'I (Чисельник)' : 'II (Знаменник)')]);
+            
+            // Дата створення
+            const now = new Date();
+            const created = now.toLocaleDateString('uk-UA', { year: 'numeric', month: 'long', day: 'numeric' });
+            grid.push([`Створено ${created}`]);
+            
+            grid.push([]); // Порожній рядок
+            
+            // Шапка таблиці
+            grid.push(['', 'Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П\'ятниця']);
+            
+            // Фільтруємо пари для цього тижня
+            const weekLessons = lessons.filter(l => parseInt(l.week) === week);
+            
+            // Визначаємо максимальну кількість пар
+            const maxSlots = Math.max(...Object.values(TIME_SLOTS).map(slots => slots.length));
+            
+            // Для кожного слоту
+            for (let slotNum = 1; slotNum <= maxSlots; slotNum++) {
+                // Збираємо дані для кожного дня
+                const daysData = [];
+                
+                for (let day = 1; day <= 5; day++) {
+                    const timeSlot = TIME_SLOTS[day].find(s => s.id === slotNum);
+                    
+                    if (timeSlot) {
+                        // Знаходимо пари для цього дня/слоту
+                        const dayLessons = weekLessons.filter(l => 
+                            parseInt(l.day) === day && parseInt(l.slot) === slotNum
+                        );
+                        
+                        daysData.push(dayLessons);
+                    } else {
+                        daysData.push([]);
+                    }
+                }
+                
+                // Визначаємо максимальну кількість пар в одному слоті по всіх днях
+                const maxLessonsInSlot = Math.max(...daysData.map(d => d.length), 1);
+                
+                // Для кожної пари в слоті створюємо 5 рядків + 1 порожній
+                for (let lessonIndex = 0; lessonIndex < maxLessonsInSlot; lessonIndex++) {
+                    const row1 = [lessonIndex === 0 ? `${slotNum} пара` : ''];  // Група
+                    const row2 = [''];  // Предмет
+                    const row3 = [''];  // Викладач
+                    const row4 = [''];  // Тип
+                    const row5 = [''];  // Аудиторія
+                    
+                    // Для кожного дня
+                    for (let day = 0; day < 5; day++) {
+                        const lesson = daysData[day][lessonIndex];
+                        
+                        if (lesson) {
+                            // Рядок 1: Група
+                            row1.push(lesson.group || '');
+                            
+                            // Рядок 2: Предмет
+                            row2.push(lesson.subject || '');
+                            
+                            // Рядок 3: Викладач(і)
+                            let teachers = lesson.teacher || '';
+                            if (lesson.teacher2) {
+                                teachers += ' + ' + lesson.teacher2;
+                            }
+                            row3.push(teachers);
+                            
+                            // Рядок 4: Тип
+                            row4.push(lesson.type || '');
+                            
+                            // Рядок 5: Аудиторія
+                            row5.push(lesson.room || '');
+                        } else {
+                            // Порожні клітинки
+                            row1.push('');
+                            row2.push('');
+                            row3.push('');
+                            row4.push('');
+                            row5.push('');
+                        }
+                    }
+                    
+                    // Додаємо 5 рядків для цієї пари
+                    grid.push(row1);
+                    grid.push(row2);
+                    grid.push(row3);
+                    grid.push(row4);
+                    grid.push(row5);
+                    
+                    // Додаємо порожній рядок між парами (якщо це не остання пара в слоті)
+                    if (lessonIndex < maxLessonsInSlot - 1) {
+                        grid.push(['__LESSON_SEPARATOR__', '', '', '', '', '']);
+                    }
+                }
+                
+                // Порожній рядок між слотами - додаємо маркер
+                grid.push(['__SLOT_SEPARATOR__', '', '', '', '', '']);
+            }
+            
+            return grid;
+        }
+        
         function downloadBackup() { const data = JSON.stringify({ lessons, teachersList, subjectsList, groupsList, roomsList }, null, 2); const blob = new Blob([data], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
         function uploadBackup(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); lessons = sanitizeData(data.lessons); saveToLocal(); renderLessons(); } catch (err) { customAlert('Помилка завантаження файлу', 'Помилка', 'error'); } }; reader.readAsText(file); }
         function openNewModal(d, s) { editState = { isNew: true, lessonId: null, day: d, slot: s }; clearForm(); document.getElementById('modalTitle').innerText = 'Нова пара'; document.getElementById('addModal').classList.add('open'); document.getElementById('inputGroup').focus(); }
@@ -4821,12 +5341,13 @@
             // Якщо є конфлікт - попереджаємо
             if (conflict) {
                 const conflictMessages = {
-                    'group': `⚠️ Конфлікт: Група ${conflict.lesson.group} вже має пару в цей час!\n\n${conflict.lesson.subject} (${conflict.lesson.teacher})\n\nВсе одно додати?`,
-                    'teacher': `⚠️ Конфлікт: Викладач ${conflict.lesson.teacher} вже зайнятий в цей час!\n\n${conflict.lesson.subject} (${conflict.lesson.group})\n\nВсе одно додати?`,
-                    'room': `⚠️ Конфлікт: Аудиторія ${conflict.lesson.room} вже зайнята в цей час!\n\n${conflict.lesson.subject} (${conflict.lesson.teacher})\n\nВсе одно додати?`
+                    'group': `Конфлікт: Група ${conflict.lesson.group} вже має пару в цей час!\n\n${conflict.lesson.subject} (${conflict.lesson.teacher})\n\nВсе одно додати?`,
+                    'teacher': `Конфлікт: Викладач ${conflict.lesson.teacher} вже зайнятий в цей час!\n\n${conflict.lesson.subject} (${conflict.lesson.group})\n\nВсе одно додати?`,
+                    'room': `Конфлікт: Аудиторія ${conflict.lesson.room} вже зайнята в цей час!\n\n${conflict.lesson.subject} (${conflict.lesson.teacher})\n\nВсе одно додати?`
                 };
                 
-                if (!confirm(conflictMessages[conflict.type])) {
+                const confirmed = await customConfirm(conflictMessages[conflict.type], '⚠️ Попередження про конфлікт', 'Додати', 'Скасувати');
+                if (!confirmed) {
                     return;
                 }
             }
@@ -5787,7 +6308,8 @@
                         /* Кнопки експорту */
                         .export-btn { 
                             background: white;
-                            color:    font-size: 11pt;
+                            color: #b8956a;
+                            font-size: 11pt;
                             font-weight: 600;
                             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                             transition: all 0.2s;
