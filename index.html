@@ -1711,40 +1711,9 @@
             }
         }
 
-        /* Мобільна нижня навігація для перемикання тижнів */
+        /* Мобільна нижня навігація для перемикання тижнів (вимкнена) */
         .mobile-week-nav {
             display: none;
-        }
-
-        @media (max-width: 768px) {
-            .mobile-week-nav {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                padding: 0.5rem 1rem calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
-                background: #ffffff;
-                box-shadow: 0 -6px 16px rgba(15, 23, 42, 0.16);
-                display: flex;
-                gap: 0.5rem;
-                z-index: 250000;
-            }
-
-            .mobile-week-nav .week-btn {
-                flex: 1;
-                justify-content: center;
-            }
-
-            body.dark-mode .mobile-week-nav {
-                background: #020617;
-                box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.7);
-            }
-
-            /* Додаємо відступ під контент, щоб не ховати його під навігацією
-               і щоб нижній синій блок з ім'ям викладача був вище за бар */
-            #schedule-container {
-                margin-bottom: 5.5rem;
-            }
         }
 
         </style>
@@ -1904,12 +1873,6 @@
         <div class="day-column" id="day-3"><div class="day-header">Середа</div></div>
         <div class="day-column" id="day-4"><div class="day-header">Четвер</div></div>
         <div class="day-column" id="day-5"><div class="day-header">П'ятниця</div></div>
-    </div>
-
-    <!-- Мобільна нижня навігація для перемикання тижнів -->
-    <div class="mobile-week-nav">
-        <button class="week-btn" id="btn-week-1-mobile" onclick="setWeek(1)">Тиждень I</button>
-        <button class="week-btn" id="btn-week-2-mobile" onclick="setWeek(2)">Тиждень II</button>
     </div>
 
     <div class="modal-overlay" id="loginModal">
