@@ -696,7 +696,36 @@
             opacity: 0.8;
         }
 
-        .schedule-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; align-items: start; }
+        .schedule-grid { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 0.75rem; 
+            align-items: start; 
+            position: relative;
+        }
+
+        /* Водяний знак поточного тижня — завжди по центру екрана */
+        #week-watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 5;
+            font-size: clamp(120px, 22vw, 220px);
+            font-weight: 800;
+            color: rgba(15, 23, 42, 0.12);
+            line-height: 1;
+            mix-blend-mode: multiply;
+        }
+
+        body.dark-mode #week-watermark {
+            color: rgba(148, 163, 184, 0.18);
+            mix-blend-mode: screen;
+        }
         .day-column { background: #e2e8f0; border-radius: 0.75rem; padding: 0.5rem; min-height: 80vh; display: flex; flex-direction: column; gap: 0.5rem; transition: background 0.3s; }
         .day-column.current-day { background: var(--live-bg); border: 1px solid var(--live-border); }
         .day-header { 
@@ -1693,21 +1722,45 @@
 
         /* Анімований перехід для сітки розкладу — мінімалістичний, у стилі iOS */
         #schedule-container.schedule-fade {
-            animation: schedule-fade 280ms cubic-bezier(0.22, 0.8, 0.22, 1);
+            animation: schedule-fade 260ms cubic-bezier(0.22, 0.8, 0.22, 1);
             transform-origin: top center;
         }
         @keyframes schedule-fade {
             0% {
                 opacity: 0;
-                transform: translateY(6px);
-            }
-            60% {
-                opacity: 1;
-                transform: translateY(0);
+                transform: translateY(4px);
             }
             100% {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        /* Горизонтальна анімація для свайпів між тижнями (вліво / вправо) */
+        #schedule-container.week-swipe-left {
+            animation: week-swipe-left 260ms cubic-bezier(0.22, 0.8, 0.22, 1);
+        }
+        #schedule-container.week-swipe-right {
+            animation: week-swipe-right 260ms cubic-bezier(0.22, 0.8, 0.22, 1);
+        }
+        @keyframes week-swipe-left {
+            0% {
+                opacity: 0.3;
+                transform: translateX(24px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        @keyframes week-swipe-right {
+            0% {
+                opacity: 0.3;
+                transform: translateX(-24px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
             }
         }
 
@@ -1868,6 +1921,7 @@
     </div>
 
     <div class="schedule-grid" id="schedule-container">
+        <div id="week-watermark">1</div>
         <div class="day-column" id="day-1"><div class="day-header">Понеділок</div></div>
         <div class="day-column" id="day-2"><div class="day-header">Вівторок</div></div>
         <div class="day-column" id="day-3"><div class="day-header">Середа</div></div>
@@ -2565,9 +2619,12 @@
             
             renderGrid();
             renderLessons();
+            updateWeekWatermark();
+            updateWeekWatermarkParallax();
             checkConflicts();
             updateLiveStatus();
             setInterval(updateLiveStatus, 30000);
+            window.addEventListener('scroll', updateWeekWatermarkParallax, { passive: true });
 
             // Початкове завантаження даних з Google (аналогічно rozklad_kaf16.html)
             try {
@@ -2611,6 +2668,7 @@
         let swipeStartX = null;
         let swipeStartY = null;
         let swipeStartTime = null;
+        let weekWatermarkBaseScroll = null;
 
         function initSwipeGestures() {
             const container = document.getElementById('schedule-container');
@@ -2643,12 +2701,34 @@
                 if (dt > 600) return;
 
                 // Ліворуч: наступний тиждень, праворуч: попередній тиждень
+                const scheduleEl = document.getElementById('schedule-container');
+
                 if (dx < 0 && currentWeek === 1) {
+                    // Свайп вліво → рух контенту зправа наліво
+                    if (scheduleEl) {
+                        scheduleEl.classList.remove('week-swipe-left', 'week-swipe-right');
+                        void scheduleEl.offsetWidth;
+                        scheduleEl.classList.add('week-swipe-left');
+                    }
                     setWeek(2);
                 } else if (dx > 0 && currentWeek === 2) {
+                    // Свайп вправо → рух контенту зліва направо
+                    if (scheduleEl) {
+                        scheduleEl.classList.remove('week-swipe-left', 'week-swipe-right');
+                        void scheduleEl.offsetWidth;
+                        scheduleEl.classList.add('week-swipe-right');
+                    }
                     setWeek(1);
                 }
             }, { passive: true });
+        }
+
+        function updateWeekWatermarkParallax() {
+            const wm = document.getElementById('week-watermark');
+            if (!wm) return;
+            
+            // Водяний знак завжди фіксовано по центру екрана
+            wm.style.transform = 'translate(-50%, -50%)';
         }
         
         // Перевірка нових draft без перезавантаження всього
@@ -4489,6 +4569,12 @@
             }
         }
         function updateCloudStatus(type, text) { const el = document.getElementById('cloudStatus'); el.className = 'cloud-status'; if(type === 'saved') { el.classList.add('status-saved'); el.innerHTML = `<i class="fa-solid fa-cloud-check"></i> <span>${text}</span>`; } else if (type === 'pending') { el.classList.add('status-pending'); el.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> <span>${text}</span>`; } else { el.classList.add('status-error'); el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <span>${text}</span>`; } }
+        function updateWeekWatermark() {
+            const el = document.getElementById('week-watermark');
+            if (!el) return;
+            el.textContent = currentWeek === 2 ? '2' : '1';
+        }
+
         function setWeek(w) { 
             currentWeek = parseInt(w); 
             document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active')); 
@@ -4497,6 +4583,8 @@
             const mobileBtn = document.getElementById(`btn-week-${w}-mobile`);
             if (desktopBtn) desktopBtn.classList.add('active');
             if (mobileBtn) mobileBtn.classList.add('active');
+
+            updateWeekWatermark();
 
             // Анімований перехід сітки (як у rozklad_kaf16.html)
             const scheduleEl = document.getElementById('schedule-container');
