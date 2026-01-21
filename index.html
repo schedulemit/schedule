@@ -1573,13 +1573,235 @@
             color: #713f12 !important;
             transform: scale(1.05);
         }
+
+        /* Глобальний лоадер з прогрес-баром + скелетон сітки (скопійовано з rozklad_kaf16.html) */
+        .global-loader {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at top, rgba(59,130,246,0.15), transparent 50%), #eef2ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            color: #0f172a;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+        .global-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .global-loader-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .global-loader-subtitle {
+            font-size: 0.85rem;
+            opacity: 0.85;
+            margin-bottom: 18px;
+        }
+        .global-loader-bar {
+            width: min(320px, 80vw);
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(148,163,184,0.4);
+            overflow: hidden;
+            margin-bottom: 18px;
+        }
+        .global-loader-bar-fill {
+            width: 40%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #38bdf8, #3b82f6, #6366f1);
+            animation: loader-indeterminate 1.4s ease-in-out infinite;
+        }
+        @keyframes loader-indeterminate {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(0%); }
+            100% { transform: translateX(120%); }
+        }
+        .global-loader-skeleton {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 10px;
+            width: min(900px, 94vw);
+            max-width: 100%;
+            margin-top: 10px;
+        }
+        .global-loader-skeleton-day {
+            background: rgba(255,255,255,0.9);
+            border-radius: 14px;
+            padding: 10px 8px 12px;
+            border: 1px solid rgba(148,163,184,0.35);
+            box-shadow: 0 10px 25px rgba(15,23,42,0.18);
+        }
+        .global-loader-skeleton-day-header {
+            height: 16px;
+            border-radius: 999px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #e5e7eb 0%, #cbd5e1 40%, #e5e7eb 80%);
+            background-size: 200% 100%;
+            animation: shimmer 2s linear infinite;
+        }
+        .global-loader-skeleton-slot {
+            height: 38px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            background: linear-gradient(90deg, #e5e7eb 0%, #d1d5db 40%, #e5e7eb 80%);
+            background-size: 220% 100%;
+            animation: shimmer 2.4s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        body.dark-mode .global-loader {
+            background: radial-gradient(circle at top, rgba(59,130,246,0.25), transparent 45%), rgba(15,23,42,0.98);
+            color: white;
+        }
+        body.dark-mode .global-loader-skeleton-day {
+            background: rgba(15,23,42,0.9);
+            border-color: rgba(148,163,184,0.4);
+            box-shadow: 0 12px 30px rgba(15,23,42,0.85);
+        }
+        body.dark-mode .global-loader-skeleton-day-header {
+            background: linear-gradient(90deg, #1e293b 0%, #0f172a 40%, #1e293b 80%);
+        }
+        body.dark-mode .global-loader-skeleton-slot {
+            background: linear-gradient(90deg, #0f172a 0%, #020617 40%, #0f172a 80%);
+        }
+
+        /* Під час завантаження не підсвічуємо поточний день / пару та заголовки (як у rozklad_kaf16.html) */
+        body.loading .day-column.current-day {
+            background: #e2e8f0;
+            border: 1px solid #e2e8f0;
+        }
+        body.loading .time-slot.current-now {
+            background-image: repeating-linear-gradient(45deg, var(--slot-bg), var(--slot-bg) 10px, var(--slot-hatch) 10px, var(--slot-hatch) 20px);
+            border-color: #cbd5e1;
+            box-shadow: none;
+        }
+        body.loading .day-header {
+            opacity: 0;
+        }
+
+        /* Анімований перехід для сітки розкладу — мінімалістичний, у стилі iOS */
+        #schedule-container.schedule-fade {
+            animation: schedule-fade 280ms cubic-bezier(0.22, 0.8, 0.22, 1);
+            transform-origin: top center;
+        }
+        @keyframes schedule-fade {
+            0% {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            60% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Мобільна нижня навігація для перемикання тижнів */
+        .mobile-week-nav {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-week-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                padding: 0.5rem 1rem calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+                background: #ffffff;
+                box-shadow: 0 -6px 16px rgba(15, 23, 42, 0.16);
+                display: flex;
+                gap: 0.5rem;
+                z-index: 250000;
+            }
+
+            .mobile-week-nav .week-btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            body.dark-mode .mobile-week-nav {
+                background: #020617;
+                box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.7);
+            }
+
+            /* Додаємо відступ під контент, щоб не ховати його під навігацією */
+            body {
+                padding-bottom: 4.5rem;
+            }
+        }
+
         </style>
         
         <!-- SheetJS з підтримкою стилів для експорту в Excel -->
         <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     </head>
 <body>
-    
+
+    <!-- Глобальний лоадер з прогрес-баром і скелетоном (скопійовано з rozklad_kaf16.html) -->
+    <div id="global-loader" class="global-loader hidden">
+        <div class="global-loader-header">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>Завантаження розкладу</span>
+        </div>
+        <div id="global-loader-subtitle" class="global-loader-subtitle">Підключення до Google Таблиць…</div>
+        <div class="global-loader-bar">
+            <div class="global-loader-bar-fill"></div>
+        </div>
+        <div class="global-loader-skeleton">
+            <div class="global-loader-skeleton-day">
+                <div class="global-loader-skeleton-day-header"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+            </div>
+            <div class="global-loader-skeleton-day">
+                <div class="global-loader-skeleton-day-header"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+            </div>
+            <div class="global-loader-skeleton-day">
+                <div class="global-loader-skeleton-day-header"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+            </div>
+            <div class="global-loader-skeleton-day">
+                <div class="global-loader-skeleton-day-header"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+            </div>
+            <div class="global-loader-skeleton-day">
+                <div class="global-loader-skeleton-day-header"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+                <div class="global-loader-skeleton-slot"></div>
+            </div>
+        </div>
+    </div>
+
     <div id="compare-panel">
         <div class="compare-header">
             <div>
@@ -1674,13 +1896,19 @@
             <button class="panel-btn" onclick="clearHighlight()">Скинути (Esc)</button>
         </div>
     </div>
-    
+
     <div class="schedule-grid" id="schedule-container">
         <div class="day-column" id="day-1"><div class="day-header">Понеділок</div></div>
         <div class="day-column" id="day-2"><div class="day-header">Вівторок</div></div>
         <div class="day-column" id="day-3"><div class="day-header">Середа</div></div>
         <div class="day-column" id="day-4"><div class="day-header">Четвер</div></div>
         <div class="day-column" id="day-5"><div class="day-header">П'ятниця</div></div>
+    </div>
+
+    <!-- Мобільна нижня навігація для перемикання тижнів -->
+    <div class="mobile-week-nav">
+        <button class="week-btn" id="btn-week-1-mobile" onclick="setWeek(1)">Тиждень I</button>
+        <button class="week-btn" id="btn-week-2-mobile" onclick="setWeek(2)">Тиждень II</button>
     </div>
 
     <div class="modal-overlay" id="loginModal">
@@ -2343,7 +2571,10 @@
             return false;
         }
         
-        function init() {
+        async function init() {
+            // Показуємо плавний лоадер під час початкового завантаження
+            showGlobalLoader('Завантаження довідників…');
+
             // Ініціалізація Dark Mode
             initDarkMode();
             
@@ -2373,7 +2604,14 @@
             checkConflicts();
             updateLiveStatus();
             setInterval(updateLiveStatus, 30000);
-            loadFromGoogle(); 
+
+            // Початкове завантаження даних з Google (аналогічно rozklad_kaf16.html)
+            try {
+                await loadFromGoogle({ showLoader: false, skipUnsavedConfirm: true });
+            } finally {
+                // Ховаємо глобальний лоадер після повного першого завантаження
+                hideGlobalLoader();
+            }
             
             // Автоперевірка нових draft запитів для адміна (кожні 10 секунд)
             setInterval(() => {
@@ -2385,6 +2623,68 @@
             window.addEventListener('beforeunload', function (e) { if (unsavedChanges) { e.preventDefault(); e.returnValue = ''; } });
             document.addEventListener('dragend', () => { document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('drag-over')); });
             fixTooltips();
+
+            // Мобільні жесті та нижня навігація для тижнів
+            initMobileWeekNav();
+            initSwipeGestures();
+        }
+
+        function initMobileWeekNav() {
+            const btn1m = document.getElementById('btn-week-1-mobile');
+            const btn2m = document.getElementById('btn-week-2-mobile');
+            if (!btn1m || !btn2m) return;
+
+            // Синхронізуємо початковий стан
+            if (currentWeek === 1) {
+                btn1m.classList.add('active');
+                btn2m.classList.remove('active');
+            } else {
+                btn2m.classList.add('active');
+                btn1m.classList.remove('active');
+            }
+        }
+
+        let swipeStartX = null;
+        let swipeStartY = null;
+        let swipeStartTime = null;
+
+        function initSwipeGestures() {
+            const container = document.getElementById('schedule-container');
+            if (!container) return;
+
+            // Тільки на мобільних екранах
+            const isSmallScreen = () => window.innerWidth <= 768;
+
+            container.addEventListener('touchstart', (e) => {
+                if (!isSmallScreen() || e.touches.length !== 1) return;
+                const t = e.touches[0];
+                swipeStartX = t.clientX;
+                swipeStartY = t.clientY;
+                swipeStartTime = Date.now();
+            }, { passive: true });
+
+            container.addEventListener('touchend', (e) => {
+                if (!isSmallScreen() || swipeStartX === null || swipeStartY === null || swipeStartTime === null) return;
+
+                const t = e.changedTouches[0];
+                const dx = t.clientX - swipeStartX;
+                const dy = t.clientY - swipeStartY;
+                const dt = Date.now() - swipeStartTime;
+
+                swipeStartX = swipeStartY = swipeStartTime = null;
+
+                // Мінімальна відстань та швидкість жесту
+                if (Math.abs(dx) < 40) return;
+                if (Math.abs(dx) < Math.abs(dy) * 1.5) return; // уникати вертикального скролу
+                if (dt > 600) return;
+
+                // Ліворуч: наступний тиждень, праворуч: попередній тиждень
+                if (dx < 0 && currentWeek === 1) {
+                    setWeek(2);
+                } else if (dx > 0 && currentWeek === 2) {
+                    setWeek(1);
+                }
+            }, { passive: true });
         }
         
         // Перевірка нових draft без перезавантаження всього
@@ -2686,8 +2986,39 @@
             populateDatalists();
         }
 
-        async function loadFromGoogle() {
-            if(unsavedChanges && !(await customConfirm("Незбережені локальні зміни будуть втрачені. Оновити?"))) return;
+        // Глобальний лоадер (прогрес-бар + скелетон) - копія з rozklad_kaf16.html
+        let globalLoaderCounter = 0;
+        function showGlobalLoader(message) {
+            const loader = document.getElementById('global-loader');
+            if (!loader) return;
+            const subtitleEl = document.getElementById('global-loader-subtitle');
+            if (subtitleEl && message) {
+                subtitleEl.textContent = message;
+            }
+            globalLoaderCounter++;
+            loader.classList.remove('hidden');
+            document.body.classList.add('loading');
+        }
+        function hideGlobalLoader() {
+            const loader = document.getElementById('global-loader');
+            if (!loader) return;
+            if (globalLoaderCounter > 0) globalLoaderCounter--;
+            if (globalLoaderCounter <= 0) {
+                globalLoaderCounter = 0;
+                loader.classList.add('hidden');
+                document.body.classList.remove('loading');
+            }
+        }
+
+        async function loadFromGoogle(options = {}) {
+            const { showLoader = false, skipUnsavedConfirm = false } = options || {};
+            
+            if (unsavedChanges && !skipUnsavedConfirm && !(await customConfirm("Незбережені локальні зміни будуть втрачені. Оновити?"))) return;
+            
+            if (showLoader) {
+                showGlobalLoader('Оновлення даних розкладу…');
+            }
+
             updateCloudStatus('pending', 'Перевірка...');
             try {
                 const response = await fetch(GOOGLE_SCRIPT_URL);
@@ -2768,10 +3099,17 @@
 
                 updateCloudStatus('saved', 'Оновлено');
                 updateButtonStates();
-            } catch (e) { console.error(e); updateCloudStatus('error', 'Помилка оновлення'); }
+            } catch (e) {
+                console.error(e);
+                updateCloudStatus('error', 'Помилка оновлення');
+            } finally {
+                if (showLoader) {
+                    hideGlobalLoader();
+                }
+            }
         }
 
-        function reloadAll() { loadFromGoogle(); }
+        function reloadAll() { loadFromGoogle({ showLoader: true }); }
 
         function triggerAutoSave() { 
             unsavedChanges = true; 
@@ -4190,7 +4528,20 @@
         function setWeek(w) { 
             currentWeek = parseInt(w); 
             document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active')); 
-            document.getElementById(`btn-week-${w}`).classList.add('active'); 
+
+            const desktopBtn = document.getElementById(`btn-week-${w}`);
+            const mobileBtn = document.getElementById(`btn-week-${w}-mobile`);
+            if (desktopBtn) desktopBtn.classList.add('active');
+            if (mobileBtn) mobileBtn.classList.add('active');
+
+            // Анімований перехід сітки (як у rozklad_kaf16.html)
+            const scheduleEl = document.getElementById('schedule-container');
+            if (scheduleEl) {
+                scheduleEl.classList.remove('schedule-fade');
+                // Перезапускаємо анімацію
+                void scheduleEl.offsetWidth;
+                scheduleEl.classList.add('schedule-fade');
+            }
             
             renderLessons(isCompareMode); 
             checkConflicts(); 
