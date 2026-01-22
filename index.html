@@ -6284,22 +6284,26 @@
         function openLinksModal() {
             const container = document.getElementById('linksListContent');
             container.innerHTML = '';
-            
+        
             if (!teachersList || teachersList.length === 0) {
                 container.innerHTML = '<div>Список викладачів порожній. Спочатку завантажте дані.</div>';
             } else {
                 const baseUrl = window.location.href.split('?')[0];
-                
+        
                 teachersList.forEach(name => {
-                    const link = `${baseUrl}?teacher=${encodeURIComponent(name)}`;
+                    // ВИПРАВЛЕННЯ 1: Замінюємо апостроф на %27 для URL
+                    const link = `${baseUrl}?teacher=${encodeURIComponent(name).replace(/'/g, '%27')}`;
                     
+                    // ВИПРАВЛЕННЯ 2: Екрануємо апостроф для виклику JS-функції
+                    const safeName = name.replace(/'/g, "\\'");
+        
                     const row = document.createElement('div');
                     row.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #eee;";
-                    
+        
                     row.innerHTML = `
                         <span style="font-weight:600;">${name}</span>
                         <div style="display:flex;gap:6px;">
-                            <button class="btn-sync" style="font-size:0.8rem;" onclick="exportTeacherSchedule('${name}')">
+                            <button class="btn-sync" style="font-size:0.8rem;" onclick="exportTeacherSchedule('${safeName}')">
                                 <i class="fa-solid fa-file-pdf"></i> PDF
                             </button>
                             <button class="btn-sync" style="font-size:0.8rem;" onclick="copyLink('${link}')">
@@ -6310,7 +6314,7 @@
                     container.appendChild(row);
                 });
             }
-            
+        
             document.getElementById('linksModal').classList.add('open');
         }
 
