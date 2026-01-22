@@ -5889,7 +5889,7 @@
             const week2 = allLessons.filter(l => parseInt(l.week) === 2);
             
             // Загальна статистика
-            const totalHours = active.length * 1.5; // Кожна пара = 1.5 год
+            const totalHours = active.length * 2; // Кожна пара = 2 год
             const uniqueGroups = [...new Set(active.map(l => l.group))].filter(g => g);
             const uniqueTeachers = [...new Set(active.flatMap(l => [l.teacher, l.teacher2].filter(t => t)))];
             
@@ -6040,36 +6040,37 @@
             const maxLoad = sortedTeachers.length > 0 ? sortedTeachers[0][1] : 1;
             
             let html = `
-                <!-- Топ викладачів -->
                 <div class="stat-section">
-                    <div class="stat-title">👨‍🏫 Навантаження викладачів</div>
+                    <div class="stat-title">👨‍🏫 Навантаження викладачів (у годинах)</div>
                     ${sortedTeachers.map(([teacher, count]) => `
                         <div class="stat-row">
                             <div class="stat-label" title="${teacher}">${teacher}</div>
                             <div class="stat-bar-container">
                                 <div class="stat-bar bar-blue" style="width:${(count/maxLoad)*100}%"></div>
                             </div>
-                            <div class="stat-value">${count}</div>
+                            <div class="stat-value">${count * 2} год.</div>
                         </div>
                     `).join('')}
                 </div>
                 
-                <!-- Детальна інформація по викладачах -->
                 ${sortedTeachers.slice(0, 10).map(([teacher, count]) => {
                     const days = teacherDays[teacher];
                     const groups = Array.from(teacherGroups[teacher] || []);
                     const maxDayLoad = Math.max(...Object.values(days));
                     
+                    // ВАЖЛИВО: Створюємо безпечне ім'я для кнопки PDF (щоб не ламалось на апострофах)
+                    const safeName = teacher.replace(/'/g, "\\'");
+                    
                     return `
                     <div class="stat-section">
                         <div class="stat-title" style="display:flex;justify-content:space-between;align-items:center;">
-                            <span>📌 ${teacher} (${count} пар, ${(count * 1.5).toFixed(1)} год)</span>
-                            <button class="btn-sync" style="font-size:0.75rem;padding:4px 10px;" onclick="exportTeacherSchedule('${teacher}')">
+                            <span>📌 ${teacher} (${count} пар, ${count * 2} год)</span>
+                            
+                            <button class="btn-sync" style="font-size:0.75rem;padding:4px 10px;" onclick="exportTeacherSchedule('${safeName}')">
                                 <i class="fa-solid fa-file-pdf"></i> PDF
                             </button>
                         </div>
                         
-                        <!-- Розподіл по днях -->
                         <div style="margin-bottom:1rem;">
                             <div style="font-size:0.8rem;color:#64748b;margin-bottom:0.5rem;font-weight:600;">Завантаженість по днях:</div>
                             ${['Пн','Вт','Ср','Чт','Пт'].map((d,i) => `
@@ -6078,12 +6079,11 @@
                                     <div class="stat-bar-container">
                                         <div class="stat-bar bar-green" style="width:${days[i+1] > 0 ? (days[i+1]/maxDayLoad)*100 : 0}%"></div>
                                     </div>
-                                    <div class="stat-value">${days[i+1]}</div>
+                                    <div class="stat-value">${days[i+1] * 2} год.</div>
                                 </div>
                             `).join('')}
                         </div>
                         
-                        <!-- Групи -->
                         ${groups.length > 0 ? `
                         <div>
                             <div style="font-size:0.8rem;color:#64748b;margin-bottom:0.5rem;font-weight:600;">Групи в роботі (${groups.length}):</div>
