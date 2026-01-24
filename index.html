@@ -1769,6 +1769,92 @@
             display: none;
         }
 
+        /* Current week indicator */
+        .current-week-indicator {
+            display: none;
+            background: #f8fafc;
+            color: #475569;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin: 16px 0;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .current-week-indicator:hover {
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+        
+        .current-week-indicator i {
+            font-size: 1rem;
+            color: #3b82f6;
+        }
+        
+        .current-week-indicator span {
+            letter-spacing: 0.3px;
+        }
+        
+        body.dark-mode .current-week-indicator {
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #1e293b 100%);
+            color: white;
+            box-shadow: 0 8px 16px rgba(30, 64, 175, 0.4), 0 2px 4px rgba(30, 64, 175, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body.dark-mode .current-week-indicator::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+            );
+            transform: rotate(45deg);
+            animation: shimmer-indicator 3s infinite;
+        }
+        
+        @keyframes shimmer-indicator {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(45deg);
+            }
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(45deg);
+            }
+        }
+        
+        body.dark-mode .current-week-indicator:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(30, 64, 175, 0.5), 0 4px 8px rgba(30, 64, 175, 0.3);
+        }
+        
+        body.dark-mode .current-week-indicator i {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            position: relative;
+            z-index: 1;
+        }
+        
+        body.dark-mode .current-week-indicator span {
+            position: relative;
+            z-index: 1;
+        }
+
         </style>
         
         <!-- SheetJS з підтримкою стилів для експорту в Excel -->
@@ -1918,6 +2004,12 @@
             <span id="filter-msg"><i class="fa-solid fa-filter"></i> Фільтр</span>
             <button class="panel-btn" onclick="clearHighlight()">Скинути (Esc)</button>
         </div>
+    </div>
+
+    <!-- Current week indicator -->
+    <div class="current-week-indicator" id="currentWeekIndicator" style="display: none !important;">
+        <i class="fa-solid fa-calendar-day"></i>
+        <span id="currentWeekText">Поточний тиждень: I</span>
     </div>
 
     <div class="schedule-grid" id="schedule-container">
@@ -2379,10 +2471,10 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxUop754qWompKjRq8m5x_SwYG0EpQS_Dmv6VJuBbu_0nat7AXVNQUsqIZJvSjHW6L_fw/exec';
-        const ADMIN_PASSWORD = 'mitadmin';
+        const ADMIN_PASSWORD = 'admin';
         
         // Кастомний alert/confirm
         let customAlertResolve = null;
@@ -2470,6 +2562,8 @@
         const DAY_NAMES = ['', 'Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П\'ятниця'];
 
         let currentWeek = 1;
+        let actualCurrentWeek = 1; // Реальний поточний тиждень з бекенду
+        let semesterStartDate = null; // Дата початку семестру для обчислення тижня
         let liveLessons = [];
         let draftLessons = null;
         let lessons = []; 
@@ -3090,6 +3184,22 @@
                 
                 // Завантажуємо заявки від викладачів
                 teacherRequests = data.requests || [];
+                
+                // Отримуємо поточний тиждень з бекенду
+                if (data.currentWeek) {
+                    actualCurrentWeek = data.currentWeek;
+                    currentWeek = data.currentWeek;
+                    console.log('[INFO] Current week:', currentWeek);
+                    
+                    // Встановлюємо тиждень в UI
+                    setTimeout(() => setWeek(currentWeek), 0);
+                }
+                
+                // Зберігаємо дату початку семестру
+                if (data.semesterStartDate) {
+                    semesterStartDate = new Date(data.semesterStartDate);
+                    console.log('[INFO] Semester start date:', semesterStartDate);
+                }
                 
                 // Очищаємо pending proposals які вже оброблені (не існують на сервері)
                 if (!isAdmin) {
@@ -4575,6 +4685,26 @@
             el.textContent = currentWeek === 2 ? '2' : '1';
         }
 
+        // Update current week indicator
+        function updateCurrentWeekIndicator(isNextWeek = false) {
+            const indicator = document.getElementById('currentWeekIndicator');
+            const text = document.getElementById('currentWeekText');
+            
+            if (!indicator || !text) return;
+            
+            const weekRoman = actualCurrentWeek === 1 ? 'I' : 'II';
+            
+            if (isNextWeek) {
+                text.textContent = `Наступний тиждень: ${weekRoman}`;
+            } else {
+                text.textContent = `Поточний тиждень: ${weekRoman}`;
+            }
+            
+            // Show indicator
+            indicator.style.display = 'flex';
+        }
+
+
         function setWeek(w) { 
             currentWeek = parseInt(w); 
             document.querySelectorAll('.week-btn').forEach(b => b.classList.remove('active')); 
@@ -4614,6 +4744,9 @@
             if (actionState.active && actionState.type === 'move' && actionState.sourceLesson) {
                 highlightSlotsForMove(actionState.sourceLesson);
             }
+            
+            // Оновлюємо підсвічування поточного дня
+            updateLiveStatus();
         }
         function renderGrid() { const days = [1, 2, 3, 4, 5]; days.forEach(day => { const col = document.getElementById(`day-${day}`); const header = col.querySelector('.day-header'); col.innerHTML = ''; col.appendChild(header); TIME_SLOTS[day].forEach(slot => { const d = document.createElement('div'); d.className = 'time-slot'; d.dataset.day = day; d.dataset.slot = slot.id; d.innerHTML = `<div class="slot-header-row"><div class="slot-number-badge">${slot.num}</div><div class="time-text">${slot.time}</div></div><div class="add-btn-slot">+</div>`; d.addEventListener('dragover', handleDragOver); d.addEventListener('drop', handleDrop); d.addEventListener('click', (e) => handleSlotClick(day, slot.id, e)); col.appendChild(d); }); }); }
         
@@ -5099,7 +5232,35 @@
         function reapplyHighlight() { document.querySelectorAll('.lesson-card').forEach(c => { c.classList.remove('highlighted'); let match = false; if(highlightState.type === 'group' && c.dataset.group && c.dataset.group.includes(highlightState.value)) match = true; if(highlightState.type === 'teacher' && (c.dataset.teacher === highlightState.value || c.dataset.teacher2 === highlightState.value)) match = true; if(match) c.classList.add('highlighted'); }); }
         function clearHighlight() { highlightState.active = false; document.body.classList.remove('spotlight-active'); document.getElementById('filter-panel').classList.remove('show'); document.querySelectorAll('.lesson-card').forEach(c => c.classList.remove('highlighted')); }
         function handleBodyClick(e) { if(!e.target.closest('.mobile-actions')) closeAllMobileMenus(); if(highlightState.active && !e.target.closest('.lesson-card') && !e.target.closest('.top-bar') && !e.target.closest('.modal-box')) clearHighlight(); }
-        function updateLiveStatus() { const now = new Date(); const d = now.getDay(); const m = now.getHours()*60 + now.getMinutes(); document.querySelectorAll('.time-slot.drag-over').forEach(el => el.classList.remove('drag-over')); document.querySelectorAll('.day-column').forEach(c => c.classList.remove('current-day')); if(d>=1 && d<=5) document.getElementById(`day-${d}`).classList.add('current-day'); document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('current-now')); if(d>=1 && d<=5) { const slot = TIME_SLOTS[d].find(s => m >= s.start && m <= s.end); if(slot) document.querySelector(`.time-slot[data-day="${d}"][data-slot="${slot.id}"]`)?.classList.add('current-now'); } }
+        function updateLiveStatus() { 
+            const now = new Date(); 
+            const d = now.getDay(); 
+            const m = now.getHours()*60 + now.getMinutes(); 
+            
+            document.querySelectorAll('.time-slot.drag-over').forEach(el => el.classList.remove('drag-over')); 
+            document.querySelectorAll('.day-column').forEach(c => c.classList.remove('current-day')); 
+            
+            // Обчислюємо який тиждень зараз реально
+            let realCurrentWeek = actualCurrentWeek; // За замовчуванням з бекенду
+            
+            if (semesterStartDate) {
+                const diffTime = now - semesterStartDate;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                const weekNumber = Math.floor(diffDays / 7);
+                realCurrentWeek = (weekNumber % 2 === 0) ? 1 : 2;
+            }
+            
+            // Підсвічуємо тільки якщо переглядаємо реальний поточний тиждень
+            if(d>=1 && d<=5 && currentWeek === realCurrentWeek) {
+                document.getElementById(`day-${d}`).classList.add('current-day'); 
+            }
+            
+            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('current-now')); 
+            if(d>=1 && d<=5 && currentWeek === realCurrentWeek) { 
+                const slot = TIME_SLOTS[d].find(s => m >= s.start && m <= s.end); 
+                if(slot) document.querySelector(`.time-slot[data-day="${d}"][data-slot="${slot.id}"]`)?.classList.add('current-now'); 
+            } 
+        }
         function exportToImage() { const el = document.getElementById('schedule-container'); const h = el.style.height; el.style.height = 'auto'; html2canvas(el, { scale: 2, backgroundColor: '#f1f5f9' }).then(c => { const a = document.createElement('a'); a.download = `schedule_week_${currentWeek}.png`; a.href = c.toDataURL(); a.click(); el.style.height = h; }); }
         
         /**
@@ -5569,7 +5730,39 @@
         }
         
         function downloadBackup() { const data = JSON.stringify({ lessons, teachersList, subjectsList, groupsList, roomsList }, null, 2); const blob = new Blob([data], {type: "application/json"}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `backup.json`; document.body.appendChild(a); a.click(); document.body.removeChild(a); }
-        function uploadBackup(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = function(e) { try { const data = JSON.parse(e.target.result); lessons = sanitizeData(data.lessons); saveToLocal(); renderLessons(); } catch (err) { customAlert('Помилка завантаження файлу', 'Помилка', 'error'); } }; reader.readAsText(file); }
+        function uploadBackup(input) { 
+            const file = input.files[0]; 
+            if (!file) return; 
+            
+            const reader = new FileReader(); 
+            reader.onload = async function(e) { 
+                try { 
+                    const data = JSON.parse(e.target.result); 
+                    
+                    // Відновлюємо уроки
+                    lessons = sanitizeData(data.lessons); 
+                    
+                    // Відновлюємо списки
+                    teachersList = data.teachersList || []; 
+                    subjectsList = data.subjectsList || []; 
+                    groupsList = data.groupsList || []; 
+                    roomsList = data.roomsList || []; 
+                    
+                    // Оновлюємо UI
+                    populateDatalists(); 
+                    renderLessons(); 
+                    
+                    // Зберігаємо на сервер
+                    await adminSave(); 
+                    
+                    customAlert('Розклад відновлено та збережено', 'Успішно', 'success'); 
+                } catch (err) { 
+                    console.error('Upload backup error:', err);
+                    customAlert('Помилка завантаження файлу: ' + err.message, 'Помилка', 'error'); 
+                } 
+            }; 
+            reader.readAsText(file); 
+        }
         function openNewModal(d, s) { editState = { isNew: true, lessonId: null, day: d, slot: s }; clearForm(); document.getElementById('modalTitle').innerText = 'Нова пара'; document.getElementById('addModal').classList.add('open'); document.getElementById('inputGroup').focus(); }
         function openEditModal(l) { 
             editState = { isNew: false, lessonId: l.id };
@@ -6023,22 +6216,22 @@
             const teacherLoads = {};
             const teacherDays = {};
             const teacherGroups = {};
-            
+
             active.forEach(l => {
                 [l.teacher, l.teacher2].filter(t => t).forEach(teacher => {
                     teacherLoads[teacher] = (teacherLoads[teacher] || 0) + 1;
-                    
+
                     if(!teacherDays[teacher]) teacherDays[teacher] = {1:0,2:0,3:0,4:0,5:0};
                     teacherDays[teacher][l.day]++;
-                    
+
                     if(!teacherGroups[teacher]) teacherGroups[teacher] = new Set();
                     if(l.group) teacherGroups[teacher].add(l.group);
                 });
             });
-            
+
             const sortedTeachers = Object.entries(teacherLoads).sort((a,b) => b[1] - a[1]);
             const maxLoad = sortedTeachers.length > 0 ? sortedTeachers[0][1] : 1;
-            
+
             let html = `
                 <div class="stat-section">
                     <div class="stat-title">👨‍🏫 Навантаження викладачів (у годинах)</div>
@@ -6052,25 +6245,25 @@
                         </div>
                     `).join('')}
                 </div>
-                
+
                 ${sortedTeachers.slice(0, 10).map(([teacher, count]) => {
                     const days = teacherDays[teacher];
                     const groups = Array.from(teacherGroups[teacher] || []);
                     const maxDayLoad = Math.max(...Object.values(days));
-                    
+
                     // ВАЖЛИВО: Створюємо безпечне ім'я для кнопки PDF (щоб не ламалось на апострофах)
                     const safeName = teacher.replace(/'/g, "\\'");
-                    
+
                     return `
                     <div class="stat-section">
                         <div class="stat-title" style="display:flex;justify-content:space-between;align-items:center;">
                             <span>📌 ${teacher} (${count} пар, ${count * 2} год)</span>
-                            
+
                             <button class="btn-sync" style="font-size:0.75rem;padding:4px 10px;" onclick="exportTeacherSchedule('${safeName}')">
                                 <i class="fa-solid fa-file-pdf"></i> PDF
                             </button>
                         </div>
-                        
+
                         <div style="margin-bottom:1rem;">
                             <div style="font-size:0.8rem;color:#64748b;margin-bottom:0.5rem;font-weight:600;">Завантаженість по днях:</div>
                             ${['Пн','Вт','Ср','Чт','Пт'].map((d,i) => `
@@ -6083,7 +6276,7 @@
                                 </div>
                             `).join('')}
                         </div>
-                        
+
                         ${groups.length > 0 ? `
                         <div>
                             <div style="font-size:0.8rem;color:#64748b;margin-bottom:0.5rem;font-weight:600;">Групи в роботі (${groups.length}):</div>
@@ -6096,7 +6289,7 @@
                     `;
                 }).join('')}
             `;
-            
+
             return html;
         }
         
@@ -6284,22 +6477,22 @@
         function openLinksModal() {
             const container = document.getElementById('linksListContent');
             container.innerHTML = '';
-        
+
             if (!teachersList || teachersList.length === 0) {
                 container.innerHTML = '<div>Список викладачів порожній. Спочатку завантажте дані.</div>';
             } else {
                 const baseUrl = window.location.href.split('?')[0];
-        
+
                 teachersList.forEach(name => {
                     // ВИПРАВЛЕННЯ 1: Замінюємо апостроф на %27 для URL
                     const link = `${baseUrl}?teacher=${encodeURIComponent(name).replace(/'/g, '%27')}`;
-                    
+
                     // ВИПРАВЛЕННЯ 2: Екрануємо апостроф для виклику JS-функції
                     const safeName = name.replace(/'/g, "\\'");
-        
+
                     const row = document.createElement('div');
                     row.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #eee;";
-        
+
                     row.innerHTML = `
                         <span style="font-weight:600;">${name}</span>
                         <div style="display:flex;gap:6px;">
@@ -6314,7 +6507,7 @@
                     container.appendChild(row);
                 });
             }
-        
+
             document.getElementById('linksModal').classList.add('open');
         }
 
