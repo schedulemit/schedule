@@ -2007,8 +2007,8 @@
     </div>
 
     <!-- Current week indicator -->
-    <div class="current-week-indicator" id="currentWeekIndicator" style="display: none !important;">
-        <i class="fa-solid fa-calendar-day"></i>
+    <div class="current-week-indicator" id="currentWeekIndicator" style="display: none;">
+        <i class="fa-solid fa-calendar-week"></i>
         <span id="currentWeekText">Поточний тиждень: I</span>
     </div>
 
@@ -2471,9 +2471,9 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby7ByzylBjOTGv_KYDSRsiYNtYJIbQTabJ7hnl0oiuTYR5ijOhaHN7_EXsoS9KNUURuww/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4s2F-JjFfSHEGKpoQuuPK8a-sylJ2RRYsrhJqcx8DeCjMPGOLBaoNi2wG5wa5S5VcxA/exec';
         const ADMIN_PASSWORD = 'mitadmin';
         
         // Кастомний alert/confirm
@@ -3193,6 +3193,10 @@
                     
                     // Встановлюємо тиждень в UI
                     setTimeout(() => setWeek(currentWeek), 0);
+                    
+                    // Оновлюємо індикатор поточного тижня
+                    const isNextWeek = data.isNextWeek || false;
+                    updateCurrentWeekIndicator(isNextWeek);
                 }
                 
                 // Зберігаємо дату початку семестру
