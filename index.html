@@ -1266,6 +1266,37 @@
         .conflict-header { font-weight: 700; color: #dc2626; font-size: 0.85rem; margin-bottom: 6px; }
         .conflict-details { font-size: 0.75rem; color: #7f1d1d; line-height: 1.4; }
 
+        
+        /* Toggle кнопка Мої/Всі пари для викладачів (на всіх пристроях) */
+        #teacherToggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+        
+        #teacherToggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        #teacherToggle i {
+            font-size: 1rem;
+        }
+        
+        body.dark-mode #teacherToggle {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+        }
+
         /* ОНОВЛЕНИЙ БЛОК ДЛЯ МОБІЛЬНИХ */
         @media (max-width: 768px) {
             .schedule-grid { grid-template-columns: 1fr; gap: 2rem; }
@@ -1289,35 +1320,6 @@
             .compare-actions { flex-direction: column; width: 100%; }
             .compare-actions button { width: 100%; }
             .compare-legend { flex-wrap: wrap; gap: 10px; font-size: 0.75rem; }
-            .compare-legend > div:last-child { width: 100%; margin-left: 0; margin-top: 5px; text-align: center; }
-            
-            /* Toggle кнопка Мої/Всі пари для мобільної версії викладача */
-            #teacherToggle {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-                color: white;
-                border: none;
-                padding: 6px 12px;
-                border-radius: 0.5rem;
-                font-size: 0.85rem;
-                font-weight: 600;
-                cursor: pointer;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                transition: all 0.2s ease;
-            }
-            
-            #teacherToggle:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-            }
-            
-            #teacherToggle i {
-                font-size: 1rem;
-            }
-            
-            body.dark-mode #teacherToggle {
                 background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
             }
         }
@@ -2166,7 +2168,7 @@
                             <span class="help-btn-demo" style="background: #3b82f6; color: white;"><i class="fa-solid fa-user"></i></span>
                             <div>
                                 <strong>Режими перегляду</strong>
-                                <p><em>(на мобільних телефонах)</em><br>
+                                <p>
                                 <strong>Тільки мої / Мої на фоні / Всі пари</strong>
                                 Режим "Мої на фоні" зручний для вибору часу перенесення – ваші пари яскраві, інші напівпрозорі.</p>
                             </div>
@@ -2513,7 +2515,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiF9JdmIImU9i2gM2iRggIZEUeY2bSrd6I5-CxCKyrQnBW3vTdp2a_Y_2JPShr9Wh5CQ/exec';
         const ADMIN_PASSWORD = 'mitadmin';
@@ -6523,10 +6525,8 @@
             // Підсвічуємо і на мобільних, і на десктопі
             setTimeout(() => {
                 if (teacherName) {
-                    // Показуємо кнопку toggle тільки на мобільних для викладачів
-                    if (window.innerWidth <= 768) {
+                    // Показуємо кнопку toggle для викладачів (на всіх пристроях)
                         initTeacherToggle(teacherName);
-                    }
                 } else if (groupName) {
                     if (window.innerWidth > 768) activateHighlight('group', groupName, { stopPropagation: ()=>{} });
                 }
