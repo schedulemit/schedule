@@ -1290,6 +1290,37 @@
             .compare-actions button { width: 100%; }
             .compare-legend { flex-wrap: wrap; gap: 10px; font-size: 0.75rem; }
             .compare-legend > div:last-child { width: 100%; margin-left: 0; margin-top: 5px; text-align: center; }
+            
+            /* Toggle кнопка Мої/Всі пари для мобільної версії викладача */
+            #teacherToggle {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                color: white;
+                border: none;
+                padding: 6px 12px;
+                border-radius: 0.5rem;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                transition: all 0.2s ease;
+            }
+            
+            #teacherToggle:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            }
+            
+            #teacherToggle i {
+                font-size: 1rem;
+            }
+            
+            body.dark-mode #teacherToggle {
+                background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            }
+        }
 
         @media (max-width: 768px) {
             #action-panel, #filter-panel, #duplicate-panel {
@@ -1960,6 +1991,7 @@
 
                 <div class="guest-controls">
                     <button class="btn-sync" id="reloadBtnGuest" onclick="reloadAll()" title="Оновити"><i class="fa-solid fa-rotate"></i></button>
+                    <button class="btn-sync" id="teacherToggle" onclick="toggleTeacherView()" style="display:none;"><i class="fa-solid fa-user"></i> <span id="toggleText">На фоні</span></button>
                     <button class="btn-sync" id="multiChoiceBtn" onclick="toggleMultiChoiceMode()" data-tooltip="Варіанти перенесення пари"><i class="fa-solid fa-calendar-days"></i> Варіанти перенесення</button>
                     <button class="btn-sync btn-primary" id="proposeBtnGuest" onclick="proposeChanges()"><i class="fa-solid fa-paper-plane"></i> Узгодити зміни</button>
                     <button class="btn-sync" id="multiChoiceCancelBtn" onclick="toggleMultiChoiceMode()" style="display:none;"><i class="fa-solid fa-xmark"></i> Скасувати</button>
@@ -2471,7 +2503,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiF9JdmIImU9i2gM2iRggIZEUeY2bSrd6I5-CxCKyrQnBW3vTdp2a_Y_2JPShr9Wh5CQ/exec';
         const ADMIN_PASSWORD = 'mitadmin';
@@ -4372,6 +4404,11 @@
             }
             
             if(highlightState.active) reapplyHighlight();
+            
+            // Застосовуємо фільтр викладача якщо активний
+            if (currentTeacherName && !doDiff) {
+                applyTeacherFilter();
+            }
         }
 
         function createCard(lesson, doDiff = false) {
@@ -5215,6 +5252,11 @@
         function activateHighlight(type, val, e) { 
             e.stopPropagation(); 
             if(!val) return; 
+            
+            // Блокуємо highlight на мобільних пристроях
+            if (window.innerWidth <= 768) {
+                return;
+            }
             
             // Очищаємо розширений пошук, якщо він був активний
             if (Object.keys(advancedSearchFilters).length > 0) {
@@ -6471,11 +6513,95 @@
             // Підсвічуємо і на мобільних, і на десктопі
             setTimeout(() => {
                 if (teacherName) {
-                    activateHighlight('teacher', teacherName, { stopPropagation: ()=>{} });
+                    // Показуємо кнопку toggle тільки на мобільних для викладачів
+                    if (window.innerWidth <= 768) {
+                        initTeacherToggle(teacherName);
+                    }
                 } else if (groupName) {
-                    activateHighlight('group', groupName, { stopPropagation: ()=>{} });
+                    if (window.innerWidth > 768) activateHighlight('group', groupName, { stopPropagation: ()=>{} });
                 }
             }, 500);
+        }
+
+        // --- ЛОГІКА ДЛЯ TOGGLE МОЇ/ВСІ ПАРИ ---
+        let teacherViewMode = 'mine'; // 'mine', 'context', 'all'
+        let currentTeacherName = null;
+
+        function initTeacherToggle(teacherName) {
+            currentTeacherName = teacherName;
+            const toggleBtn = document.getElementById('teacherToggle');
+            if (toggleBtn) {
+                toggleBtn.style.display = 'inline-flex';
+                // Закриваємо синю панель highlight при ініціалізації
+                clearHighlight();
+                // Застосовуємо фільтр при ініціалізації
+                applyTeacherFilter();
+            }
+        }
+
+        function toggleTeacherView() {
+            // Циклічне перемикання: mine -> context -> all -> mine
+            if (teacherViewMode === 'mine') {
+                teacherViewMode = 'context';
+            } else if (teacherViewMode === 'context') {
+                teacherViewMode = 'all';
+            } else {
+                teacherViewMode = 'mine';
+            }
+            
+            updateToggleButtonText();
+            applyTeacherFilter();
+        }
+        
+        function updateToggleButtonText() {
+            const toggleText = document.getElementById('toggleText');
+            if (!toggleText) return;
+            
+            // Показуємо ЩО СТАНЕТЬСЯ при натисканні
+            if (teacherViewMode === 'mine') {
+                toggleText.textContent = 'На фоні';
+            } else if (teacherViewMode === 'context') {
+                toggleText.textContent = 'Всі пари';
+            } else {
+                toggleText.textContent = 'Тільки мої';
+            }
+        }
+
+        function applyTeacherFilter() {
+            if (!currentTeacherName) return;
+            
+            const cards = document.querySelectorAll('.lesson-card');
+            cards.forEach(card => {
+                const teacher = card.dataset.teacher;
+                const teacher2 = card.dataset.teacher2;
+                const isMine = teacher === currentTeacherName || teacher2 === currentTeacherName;
+                
+                if (teacherViewMode === 'mine') {
+                    // Режим "Тільки мої" - показуємо тільки пари викладача
+                    if (isMine) {
+                        card.style.display = '';
+                        card.style.opacity = '1';
+                        card.style.filter = 'none';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                } else if (teacherViewMode === 'context') {
+                    // Режим "Мої на фоні" - свої яскраві, чужі напівпрозорі сірі
+                    card.style.display = '';
+                    if (isMine) {
+                        card.style.opacity = '1';
+                        card.style.filter = 'none';
+                    } else {
+                        card.style.opacity = '0.35';
+                        card.style.filter = 'grayscale(0.7)';
+                    }
+                } else {
+                    // Режим "Всі пари" - показуємо все яскраво
+                    card.style.display = '';
+                    card.style.opacity = '1';
+                    card.style.filter = 'none';
+                }
+            });
         }
 
         function openLinksModal() {
