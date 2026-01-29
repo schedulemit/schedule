@@ -528,8 +528,10 @@
             display: none; 
             position: fixed; 
             bottom: 20px; 
-            left: 50%; 
-            transform: translateX(-50%) translateY(100px);
+            left: 20px;
+            right: 20px;
+            margin: 0 auto;
+            transform: translateY(100px);
             padding: 0.75rem 1.5rem; 
             border-radius: 0.75rem; 
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2), 0 8px 10px -6px rgba(0,0,0,0.1); 
@@ -541,7 +543,7 @@
             justify-content: center; 
             gap: 1rem;
             min-width: 300px;
-            max-width: 90vw;
+            max-width: 600px;
             opacity: 0;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -549,7 +551,7 @@
         #action-panel.show, #filter-panel.show, #duplicate-panel.show { 
             display: flex; 
             opacity: 1;
-            transform: translateX(-50%) translateY(0);
+            transform: translateY(0);
         }
         
         #action-panel.mode-swap { background: var(--swap-mode-bg); border: 2px solid var(--swap-mode-border); color: #064e3b; }
@@ -1549,7 +1551,7 @@
         [data-tooltip]:hover::before {
             opacity: 1;
             visibility: visible;
-            transform: translateX(-50%) translateY(0);
+            transform: translateY(0);
         }
         
         /* Спеціальний стильний tooltip для кнопки варіантів переносу */
@@ -2083,7 +2085,7 @@
     </div>
 
     <div class="modal-overlay" id="statsModal">
-        <div class="modal-box" style="width: 700px; max-width: 90vw;">
+        <div class="modal-box" style="width: 700px; max-width: 600px;">
             <div class="modal-header">Статистика (Тиждень <span id="statsWeekNum"></span>)</div>
             
             <div class="stats-tabs">
@@ -2515,7 +2517,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiF9JdmIImU9i2gM2iRggIZEUeY2bSrd6I5-CxCKyrQnBW3vTdp2a_Y_2JPShr9Wh5CQ/exec';
         const ADMIN_PASSWORD = 'mitadmin';
