@@ -2028,7 +2028,7 @@
                 </button>
                 <button class="btn-sync btn-export guest-only" onclick="exportCurrentTeacherPDF()" title="Експорт розкладу в PDF" style="color: #dc2626; border-color: #fecaca; background: #fee2e2;"><i class="fa-solid fa-file-pdf"></i></button>
                 <button class="btn-sync btn-export admin-only" onclick="exportToExcel()" title="Експорт в Excel" style="color: #059669; border-color: #a7f3d0; background: #d1fae5;"><i class="fa-solid fa-file-excel"></i></button>
-                <button class="btn-sync btn-export" onclick="exportToImage()" title="Експорт в PNG"><i class="fa-solid fa-camera"></i></button>
+                <button class="btn-sync btn-export admin-only" onclick="exportToImage()" title="Експорт в PNG"><i class="fa-solid fa-camera"></i></button>
                 <button class="btn-sync" onclick="openHelp()" title="Допомога" style="color: #8b5cf6; border-color: #ddd6fe;"><i class="fa-solid fa-circle-question"></i></button>
             </div>
         </div>
@@ -5409,16 +5409,13 @@
         function applyExcelStyles(ws, grid) {
             const range = XLSX.utils.decode_range(ws['!ref']);
             
-            // Уніфіковані кольори для всіх експортів (добре виглядають при ч/б друці)
-            const headerBg = { rgb: "D4BF9F" };      // Теплий бежевий (як в PDF)
-            const headerText = { rgb: "3D3020" };    // Темно-коричневий
-            const slotBg = { rgb: "FAF8F3" };        // Світло-бежевий
-            const slotText = { rgb: "3D3020" };      // Темно-коричневий
-            const dataBg = { rgb: "FFFFFF" };        // Білий
-            const dataText = { rgb: "5C4D3D" };      // Коричнево-сірий
-            const borderColor = { rgb: "D4BF9F" };   // Бежевий для рамок
+            // Кольори
+            const headerBg = { rgb: "D4BF9F" };
+            const headerText = { rgb: "3D3020" };
+            const dataBg = { rgb: "FFFFFF" };
+            const dataText = { rgb: "5C4D3D" };
+            const borderColor = { rgb: "D4BF9F" };
             
-            // Базові стилі рамок
             const thinBorder = {
                 style: "thin",
                 color: borderColor
@@ -5426,21 +5423,8 @@
             
             const mediumBorder = {
                 style: "medium",
-                color: { rgb: "B8956A" }  // Темніший бежевий
+                color: { rgb: "B8956A" }
             };
-            
-            // Визначаємо які рядки є роздільниками між СЛОТАМИ та між ПАРАМИ
-            const slotSeparatorRows = new Set();
-            const lessonSeparatorRows = new Set();
-            for (let R = 0; R < grid.length; R++) {
-                const row = grid[R];
-                // Шукаємо маркери роздільників
-                if (row[0] === '__SLOT_SEPARATOR__') {
-                    slotSeparatorRows.add(R);
-                } else if (row[0] === '__LESSON_SEPARATOR__') {
-                    lessonSeparatorRows.add(R);
-                }
-            }
             
             for (let R = range.s.r; R <= range.e.r; ++R) {
                 for (let C = range.s.c; C <= range.e.c; ++C) {
@@ -5449,202 +5433,61 @@
                     
                     const cell = ws[cellAddress];
                     
-                    // Прибираємо маркери з видимого тексту
-                    if (cell.v === '__SLOT_SEPARATOR__' || cell.v === '__LESSON_SEPARATOR__') {
-                        cell.v = '';
-                    }
-                    
-                    // Ініціалізуємо стиль якщо немає
-                    if (!cell.s) cell.s = {};
-                    
-                    // Перевіряємо чи це роздільник між слотами чи між парами
-                    const isSlotSeparator = slotSeparatorRows.has(R);
-                    const isLessonSeparator = lessonSeparatorRows.has(R);
-                    
-                    // Рядок 0: Заголовок "РОЗКЛАД КАФЕДРИ МІТ"
-                    if (R === 0) {
-                        cell.s = {
-                            font: { 
-                                bold: true, 
-                                sz: 16, 
-                                color: headerText,
-                                name: 'Arial'
-                            },
-                            fill: { 
-                                fgColor: headerBg 
-                            },
-                            alignment: { 
-                                horizontal: 'center', 
-                                vertical: 'center' 
-                            },
-                            border: {
-                                top: mediumBorder,
-                                bottom: mediumBorder,
-                                left: mediumBorder,
-                                right: mediumBorder
-                            }
-                        };
-                    }
-                    // Рядок 1: Дата створення
-                    else if (R === 1) {
-                        cell.s = {
-                            font: { 
-                                sz: 11, 
-                                color: slotText,
-                                name: 'Arial'
-                            },
-                            fill: { 
-                                fgColor: slotBg 
-                            },
-                            alignment: { 
-                                horizontal: 'center', 
-                                vertical: 'center' 
-                            },
-                            border: {
-                                bottom: thinBorder,
-                                left: mediumBorder,
-                                right: mediumBorder
-                            }
-                        };
-                    }
-                    // Рядок 3: Шапка таблиці (дні тижня)
-                    else if (R === 3) {
-                        cell.s = {
-                            font: { 
-                                bold: true, 
-                                sz: 12, 
-                                color: headerText,
-                                name: 'Arial'
-                            },
-                            fill: { 
-                                fgColor: headerBg 
-                            },
-                            alignment: { 
-                                horizontal: 'center', 
-                                vertical: 'center' 
-                            },
-                            border: {
-                                top: mediumBorder,
-                                bottom: mediumBorder,
-                                left: C === 0 ? mediumBorder : thinBorder,
-                                right: C === range.e.c ? mediumBorder : thinBorder
-                            }
-                        };
-                    }
-                    // Роздільники між парами в одному слоті
-                    else if (isLessonSeparator) {
-                        cell.s = {
-                            fill: { 
-                                fgColor: { rgb: "F5F5F5" }  // Світло-сірий
-                            },
-                            border: {
-                                left: C === 0 ? mediumBorder : thinBorder,
-                                right: C === range.e.c ? mediumBorder : thinBorder,
-                                top: thinBorder,
-                                bottom: thinBorder
-                            }
-                        };
-                    }
-                    // Роздільники між слотами
-                    else if (isSlotSeparator) {
-                        cell.s = {
-                            fill: { 
-                                fgColor: { rgb: "E2E8F0" }  // Темніший сірий
-                            },
-                            border: {
-                                left: C === 0 ? mediumBorder : thinBorder,
-                                right: C === range.e.c ? mediumBorder : thinBorder,
-                                top: mediumBorder,  // Товста рамка зверху
-                                bottom: mediumBorder  // Товста рамка знизу
-                            }
-                        };
-                    }
-                    // Колонка 0: Номери пар (1 пара, 2 пара...)
-                    else if (C === 0 && R > 3) {
-                        const isSlotLabel = cell.v && cell.v.toString().includes('пара');
-                        
-                        if (isSlotLabel) {
-                            cell.s = {
-                                font: { 
-                                    bold: true, 
-                                    sz: 11, 
-                                    color: slotText,
-                                    name: 'Arial'
-                                },
-                                fill: { 
-                                    fgColor: slotBg 
-                                },
-                                alignment: { 
-                                    horizontal: 'center', 
-                                    vertical: 'center' 
-                                },
-                                border: {
-                                    top: mediumBorder,
-                                    bottom: thinBorder,
-                                    left: mediumBorder,
-                                    right: mediumBorder
-                                }
-                            };
-                        } else {
-                            // Порожні клітинки в колонці номерів
-                            cell.s = {
-                                fill: { 
-                                    fgColor: slotBg 
-                                },
-                                border: {
-                                    left: mediumBorder,
-                                    right: mediumBorder,
-                                    top: thinBorder,
-                                    bottom: thinBorder
-                                }
-                            };
+                    // Базові стилі
+                    cell.s = {
+                        alignment: { 
+                            vertical: 'top', 
+                            horizontal: 'left',
+                            wrapText: true
+                        },
+                        border: {
+                            top: thinBorder,
+                            bottom: thinBorder,
+                            left: thinBorder,
+                            right: thinBorder
                         }
+                    };
+                    
+                    // Заголовок (рядок 0)
+                    if (R === 0) {
+                        cell.s.fill = { fgColor: headerBg };
+                        cell.s.font = { bold: true, sz: 14, color: headerText };
+                        cell.s.alignment.horizontal = 'center';
                     }
-                    // Дані пар (колонки 1-5)
-                    else if (R > 3 && C > 0) {
-                        const isEmpty = !cell.v || cell.v.toString().trim() === '';
-                        
-                        cell.s = {
-                            font: { 
-                                sz: 10, 
-                                color: dataText,
-                                name: 'Arial'
-                            },
-                            fill: { 
-                                fgColor: isEmpty ? { rgb: "F8FAFC" } : dataBg 
-                            },
-                            alignment: { 
-                                horizontal: 'left', 
-                                vertical: 'top',
-                                wrapText: true
-                            },
-                            border: {
-                                top: thinBorder,
-                                bottom: thinBorder,
-                                left: thinBorder,
-                                right: C === range.e.c ? mediumBorder : thinBorder
-                            }
+                    // Дата (рядок 1)
+                    else if (R === 1) {
+                        cell.s.font = { sz: 10, color: dataText };
+                        cell.s.alignment.horizontal = 'center';
+                    }
+                    // Шапка таблиці (рядок 3)
+                    else if (R === 3) {
+                        cell.s.fill = { fgColor: headerBg };
+                        cell.s.font = { bold: true, sz: 11, color: headerText };
+                        cell.s.alignment.horizontal = 'center';
+                        cell.s.border = {
+                            top: mediumBorder,
+                            bottom: mediumBorder,
+                            left: mediumBorder,
+                            right: mediumBorder
                         };
                     }
+                    // Дані (рядки 4+)
+                    else if (R >= 4) {
+                        cell.s.fill = { fgColor: dataBg };
+                        cell.s.font = { sz: 9, color: dataText };
+                        
+                        // Перша колонка (номер пари) - центрувати
+                        if (C === 0) {
+                            cell.s.font.bold = true;
+                            cell.s.alignment.horizontal = 'center';
+                            cell.s.border.right = mediumBorder;
+                        }
+                        
+                        // Товсті бордери
+                        cell.s.border.top = mediumBorder;
+                        cell.s.border.left = mediumBorder;
+                    }
                 }
-            }
-            
-            // Встановлюємо висоту рядків
-            if (!ws['!rows']) ws['!rows'] = [];
-            
-            ws['!rows'][0] = { hpt: 30 };  // Заголовок
-            ws['!rows'][1] = { hpt: 20 };  // Дата
-            ws['!rows'][2] = { hpt: 10 };  // Порожній рядок
-            ws['!rows'][3] = { hpt: 25 };  // Шапка таблиці
-            
-            // Встановлюємо висоту для роздільників
-            for (let R = 4; R <= range.e.r; ++R) {
-                if (lessonSeparatorRows.has(R)) {
-                    ws['!rows'][R] = { hpt: 5 };  // Роздільник між парами
-                } else if (slotSeparatorRows.has(R)) {
-                    ws['!rows'][R] = { hpt: 8 };  // Роздільник між слотами
-                }
-                // Інші рядки - автоматична висота
             }
         }
         
@@ -5686,16 +5529,11 @@
             ws['!pageSetup'].horizontalCentered = true;
         }
         
-        /**
-         * Створює сітку розкладу для конкретного тижня
-         * Формат: кожне поле кожної пари - окремий рядок таблиці
-         */
         function createWeekGrid(week) {
             const grid = [];
             
             // Заголовок
             grid.push(['РОЗКЛАД КАФЕДРИ МІТ - ТИЖДЕНЬ ' + (week === 1 ? 'I (Чисельник)' : 'II (Знаменник)')]);
-            
             // Дата створення
             const now = new Date();
             const created = now.toLocaleDateString('uk-UA', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -5709,88 +5547,42 @@
             // Фільтруємо пари для цього тижня
             const weekLessons = lessons.filter(l => parseInt(l.week) === week);
             
-            // Визначаємо максимальну кількість пар
-            const maxSlots = Math.max(...Object.values(TIME_SLOTS).map(slots => slots.length));
+            // Групуємо пари по day-slot
+            const grouped = {};
+            weekLessons.forEach(l => {
+                const key = `${l.day}-${l.slot}`;
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(l);
+            });
             
-            // Для кожного слоту
-            for (let slotNum = 1; slotNum <= maxSlots; slotNum++) {
-                // Збираємо дані для кожного дня
-                const daysData = [];
+            // Для кожної пари (1-5)
+            for (let slot = 1; slot <= 5; slot++) {
+                const row = [`${slot} пара`];
                 
+                // Для кожного дня (1-5: ПН-ПТ)
                 for (let day = 1; day <= 5; day++) {
-                    const timeSlot = TIME_SLOTS[day].find(s => s.id === slotNum);
+                    const key = `${day}-${slot}`;
+                    const lessonsInSlot = grouped[key] || [];
                     
-                    if (timeSlot) {
-                        // Знаходимо пари для цього дня/слоту
-                        const dayLessons = weekLessons.filter(l => 
-                            parseInt(l.day) === day && parseInt(l.slot) === slotNum
-                        );
-                        
-                        daysData.push(dayLessons);
+                    if (lessonsInSlot.length === 0) {
+                        row.push('');
                     } else {
-                        daysData.push([]);
-                    }
-                }
-                
-                // Визначаємо максимальну кількість пар в одному слоті по всіх днях
-                const maxLessonsInSlot = Math.max(...daysData.map(d => d.length), 1);
-                
-                // Для кожної пари в слоті створюємо 5 рядків + 1 порожній
-                for (let lessonIndex = 0; lessonIndex < maxLessonsInSlot; lessonIndex++) {
-                    const row1 = [lessonIndex === 0 ? `${slotNum} пара` : ''];  // Група
-                    const row2 = [''];  // Предмет
-                    const row3 = [''];  // Викладач
-                    const row4 = [''];  // Тип
-                    const row5 = [''];  // Аудиторія
-                    
-                    // Для кожного дня
-                    for (let day = 0; day < 5; day++) {
-                        const lesson = daysData[day][lessonIndex];
+                        // Формуємо текст для комірки
+                        const cellText = lessonsInSlot.map(lesson => {
+                            let text = '';
+                            text += (lesson.teacher || '-') + '\n';
+                            text += (lesson.subject || '') + '\n';
+                            text += '(' + (lesson.type || '') + ')\n';
+                            text += (lesson.group || '-') + '\n';
+                            text += (lesson.room || '-');
+                            return text;
+                        }).join('\n---\n'); // Роздільник між накладками
                         
-                        if (lesson) {
-                            // Рядок 1: Група
-                            row1.push(lesson.group || '');
-                            
-                            // Рядок 2: Предмет
-                            row2.push(lesson.subject || '');
-                            
-                            // Рядок 3: Викладач(і)
-                            let teachers = lesson.teacher || '';
-                            if (lesson.teacher2) {
-                                teachers += ' + ' + lesson.teacher2;
-                            }
-                            row3.push(teachers);
-                            
-                            // Рядок 4: Тип
-                            row4.push(lesson.type || '');
-                            
-                            // Рядок 5: Аудиторія
-                            row5.push(lesson.room || '');
-                        } else {
-                            // Порожні клітинки
-                            row1.push('');
-                            row2.push('');
-                            row3.push('');
-                            row4.push('');
-                            row5.push('');
-                        }
-                    }
-                    
-                    // Додаємо 5 рядків для цієї пари
-                    grid.push(row1);
-                    grid.push(row2);
-                    grid.push(row3);
-                    grid.push(row4);
-                    grid.push(row5);
-                    
-                    // Додаємо порожній рядок між парами (якщо це не остання пара в слоті)
-                    if (lessonIndex < maxLessonsInSlot - 1) {
-                        grid.push(['__LESSON_SEPARATOR__', '', '', '', '', '']);
+                        row.push(cellText);
                     }
                 }
                 
-                // Порожній рядок між слотами - додаємо маркер
-                grid.push(['__SLOT_SEPARATOR__', '', '', '', '', '']);
+                grid.push(row);
             }
             
             return grid;
@@ -6879,6 +6671,7 @@
             }
         }
         
+        // --- ЕКСПОРТ ПОВНОГО РОЗКЛАДУ КАФЕДРИ (А3) ---
         function exportTeacherSchedule(teacherName) {
             if (!teacherName) {
                 teacherName = prompt('Введіть прізвище викладача:');
