@@ -503,6 +503,12 @@
         .admin-controls { display: none; gap: 8px; align-items: center; flex-wrap: wrap; }
         .guest-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         
+        /* Кнопки для конкретних режимів */
+        .guest-only { display: inline-flex; }
+        .admin-only { display: none; }
+        body.is-admin .guest-only { display: none; }
+        body.is-admin .admin-only { display: inline-flex; }
+        
         .btn-sync { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.85rem; transition: all 0.2s; white-space: nowrap; }
         .btn-sync:hover { background: #e2e8f0; transform: translateY(-1px); }
         .btn-sync:disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
@@ -2020,7 +2026,8 @@
                 <button class="btn-sync" id="darkModeToggle" onclick="toggleDarkMode()" title="Темна тема">
                     <i class="fa-solid fa-moon"></i>
                 </button>
-                <button class="btn-sync btn-export" onclick="exportToExcel()" title="Експорт в Excel" style="color: #059669; border-color: #a7f3d0; background: #d1fae5;"><i class="fa-solid fa-file-excel"></i></button>
+                <button class="btn-sync btn-export guest-only" onclick="exportCurrentTeacherPDF()" title="Експорт розкладу в PDF" style="color: #dc2626; border-color: #fecaca; background: #fee2e2;"><i class="fa-solid fa-file-pdf"></i></button>
+                <button class="btn-sync btn-export admin-only" onclick="exportToExcel()" title="Експорт в Excel" style="color: #059669; border-color: #a7f3d0; background: #d1fae5;"><i class="fa-solid fa-file-excel"></i></button>
                 <button class="btn-sync btn-export" onclick="exportToImage()" title="Експорт в PNG"><i class="fa-solid fa-camera"></i></button>
                 <button class="btn-sync" onclick="openHelp()" title="Допомога" style="color: #8b5cf6; border-color: #ddd6fe;"><i class="fa-solid fa-circle-question"></i></button>
             </div>
@@ -2517,7 +2524,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiF9JdmIImU9i2gM2iRggIZEUeY2bSrd6I5-CxCKyrQnBW3vTdp2a_Y_2JPShr9Wh5CQ/exec';
         const ADMIN_PASSWORD = 'mitadmin';
@@ -6850,6 +6857,28 @@
         }
 
         // --- ЕКСПОРТ PDF ДЛЯ ВИКЛАДАЧІВ ---
+        function exportCurrentTeacherPDF() {
+            // Для гостя - експортуємо поточного викладача або питаємо
+            if (currentTeacherName) {
+                exportTeacherSchedule(currentTeacherName);
+            } else {
+                // Якщо не визначено викладача, показуємо список
+                const uniqueTeachers = [...new Set(lessons.map(l => l.teacher).filter(t => t))].sort();
+                if (uniqueTeachers.length === 0) {
+                    customAlert('Немає викладачів у розкладі!');
+                    return;
+                }
+                
+                // Простий промпт для вибору
+                const teacherName = prompt('Оберіть викладача:\n\n' + uniqueTeachers.join('\n') + '\n\nВведіть прізвище:');
+                if (teacherName && uniqueTeachers.includes(teacherName)) {
+                    exportTeacherSchedule(teacherName);
+                } else if (teacherName) {
+                    customAlert('Викладача не знайдено!');
+                }
+            }
+        }
+        
         function exportTeacherSchedule(teacherName) {
             if (!teacherName) {
                 teacherName = prompt('Введіть прізвище викладача:');
@@ -6886,6 +6915,7 @@
             const dayNames = ['', 'Понеділок', 'Вівторок', 'Середа', 'Четвер', "П'ятниця"];
             
             const generateWeekTable = (lessons, weekNum) => {
+                // Групуємо пари по day-slot
                 const grouped = {};
                 lessons.forEach(l => {
                     const key = `${l.day}-${l.slot}`;
@@ -6893,32 +6923,52 @@
                     grouped[key].push(l);
                 });
                 
+                // Генеруємо сітку
                 let rows = '';
-                [1,2,3,4,5].forEach(day => {
-                    [1,2,3,4,5].forEach(slot => {
+                
+                // Для кожної пари (1-5)
+                for (let slot = 1; slot <= 5; slot++) {
+                    rows += '<tr>';
+                    
+                    // Колонка з номером пари
+                    rows += `<th class="slot-header">${slot} пара</th>`;
+                    
+                    // Для кожного дня (1-5: ПН-ПТ)
+                    for (let day = 1; day <= 5; day++) {
                         const key = `${day}-${slot}`;
                         const lessonsInSlot = grouped[key] || [];
-                        const timeSlot = TIME_SLOTS[day][slot - 1];
                         
-                        if (lessonsInSlot.length > 0) {
-                            lessonsInSlot.forEach(lesson => {
+                        if (lessonsInSlot.length === 0) {
+                            // Порожня комірка
+                            rows += '<td class="empty-cell"></td>';
+                        } else {
+                            // Є пари в цьому слоті
+                            rows += '<td class="lesson-cell">';
+                            
+                            lessonsInSlot.forEach((lesson, index) => {
+                                if (index > 0) {
+                                    // Тонка лінія між накладками
+                                    rows += '<div class="overlap-divider"></div>';
+                                }
+                                
                                 rows += `
-                                    <tr>
-                                        <td>${dayNames[day]}</td>
-                                        <td style="text-align:center;">${slot}</td>
-                                        <td style="text-align:center;">${timeSlot.time}</td>
-                                        <td><strong>${lesson.subject}</strong></td>
-                                        <td style="text-align:center;">${lesson.type}</td>
-                                        <td style="text-align:center;">${lesson.group || '-'}</td>
-                                        <td style="text-align:center;">${lesson.room || '-'}</td>
-                                    </tr>
+                                    <div class="lesson-item">
+                                        <div class="lesson-subject">${lesson.subject}</div>
+                                        <div class="lesson-type">(${lesson.type})</div>
+                                        <div class="lesson-group">${lesson.group || '-'}</div>
+                                        <div class="lesson-room">${lesson.room || '-'}</div>
+                                    </div>
                                 `;
                             });
+                            
+                            rows += '</td>';
                         }
-                    });
-                });
+                    }
+                    
+                    rows += '</tr>';
+                }
                 
-                return rows || '<tr><td colspan="7" style="text-align:center;color:#999;padding:30px;">Немає пар на цьому тижні</td></tr>';
+                return rows;
             };
             
             return `
@@ -6980,38 +7030,120 @@
                             border-radius: 4px;
                         }
                         
-                        /* Таблиця */
-                        table { 
+                        /* Таблиця-сітка */
+                        table.schedule-grid { 
                             width: 100%; 
                             border-collapse: collapse; 
                             margin-bottom: 20px;
-                            font-size: 10pt;
+                            font-size: 9pt;
+                            border: 3px solid #333;
+                            table-layout: fixed;
                         }
                         
-                        /* Тепла пастельна шапка таблиці */
-                        th { 
-                            background: linear-gradient(180deg, #e8d5b7 0%, #d4bf9f 100%);
+                        /* Заголовки днів */
+                        th.day-header { 
+                            background: #e8d5b7;
                             color: #3d3020; 
-                            padding: 10px 8px;
-                            text-align: left;
+                            padding: 8px 4px;
+                            text-align: center;
                             font-weight: 700;
-                            border: 2px solid #b8956a;
-                            font-size: 9.5pt;
+                            border-left: 2px solid #333;
+                            border-bottom: 2px solid #333;
+                            font-size: 10pt;
+                            width: 18%;
                         }
                         
-                        td { 
+                        th.day-header:first-of-type {
+                            border-left: none;
+                        }
+                        
+                        /* Кутова порожня клітинка */
+                        th.corner-cell {
+                            background: #d4bf9f;
+                            border-right: 2px solid #333;
+                            border-bottom: 2px solid #333;
+                            width: 10%;
+                        }
+                        
+                        /* Заголовки пар (1 пара, 2 пара...) */
+                        th.slot-header {
+                            background: #e8d5b7;
+                            color: #3d3020;
                             padding: 8px;
-                            border: 1px solid #d4bf9f;
+                            text-align: center;
+                            font-weight: 700;
+                            border-right: 2px solid #333;
+                            border-top: 2px solid #333;
+                            font-size: 9pt;
+                            width: 10%;
+                            vertical-align: middle;
+                        }
+                        
+                        tbody tr:first-child th.slot-header {
+                            border-top: none;
+                        }
+                        
+                        /* Комірки з парами */
+                        td.lesson-cell,
+                        td.empty-cell {
+                            padding: 8px 6px;
+                            border-left: 2px solid #333;
+                            border-top: 2px solid #333;
                             vertical-align: top;
+                            min-height: 60px;
+                            background: white;
                         }
                         
-                        tr:nth-child(even) { 
-                            background: #faf8f3; 
+                        tbody tr:first-child td {
+                            border-top: none;
                         }
                         
-                        tr:hover {
-                            background: #fef3c7;
+                        td:first-of-type {
+                            border-left: none;
                         }
+                        
+                        /* Порожні комірки */
+                        td.empty-cell {
+                            background: white;
+                        }
+                        
+                        /* Елементи пари */
+                        .lesson-item {
+                            line-height: 1.3;
+                        }
+                        
+                        .lesson-subject {
+                            font-weight: 700;
+                            font-size: 9pt;
+                            color: #2d2416;
+                            margin-bottom: 2px;
+                        }
+                        
+                        .lesson-type {
+                            font-size: 8pt;
+                            color: #666;
+                            font-style: italic;
+                            margin-bottom: 3px;
+                        }
+                        
+                        .lesson-group {
+                            font-size: 8pt;
+                            color: #5c4d3d;
+                            margin-bottom: 1px;
+                        }
+                        
+                        .lesson-room {
+                            font-size: 8pt;
+                            color: #5c4d3d;
+                            font-weight: 600;
+                        }
+                        
+                        /* Тонкий роздільник між накладками */
+                        .overlap-divider {
+                            border-top: 1px dotted #999;
+                            margin: 6px 0;
+                        }
+                        
                         
                         /* Підсумки */
                         .summary {
@@ -7119,16 +7251,15 @@
                     
                     <!-- Тиждень I -->
                     <div class="week-title">Тиждень I (чисельник)</div>
-                    <table>
+                    <table class="schedule-grid">
                         <thead>
                             <tr>
-                                <th style="width: 12%;">День</th>
-                                <th style="width: 7%; text-align: center;">Пара</th>
-                                <th style="width: 12%; text-align: center;">Час</th>
-                                <th style="width: 30%;">Дисципліна</th>
-                                <th style="width: 12%; text-align: center;">Тип</th>
-                                <th style="width: 12%; text-align: center;">Група</th>
-                                <th style="width: 15%; text-align: center;">Аудиторія</th>
+                                <th class="corner-cell"></th>
+                                <th class="day-header">ПН</th>
+                                <th class="day-header">ВТ</th>
+                                <th class="day-header">СР</th>
+                                <th class="day-header">ЧТ</th>
+                                <th class="day-header">ПТ</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -7160,16 +7291,15 @@
                     </div>
                     
                     <div class="week-title">Тиждень II (знаменник)</div>
-                    <table>
+                    <table class="schedule-grid">
                         <thead>
                             <tr>
-                                <th style="width: 12%;">День</th>
-                                <th style="width: 7%; text-align: center;">Пара</th>
-                                <th style="width: 12%; text-align: center;">Час</th>
-                                <th style="width: 30%;">Дисципліна</th>
-                                <th style="width: 12%; text-align: center;">Тип</th>
-                                <th style="width: 12%; text-align: center;">Група</th>
-                                <th style="width: 15%; text-align: center;">Аудиторія</th>
+                                <th class="corner-cell"></th>
+                                <th class="day-header">ПН</th>
+                                <th class="day-header">ВТ</th>
+                                <th class="day-header">СР</th>
+                                <th class="day-header">ЧТ</th>
+                                <th class="day-header">ПТ</th>
                             </tr>
                         </thead>
                         <tbody>
