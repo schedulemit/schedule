@@ -2569,7 +2569,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // === ВАЖЛИВО! Вставте сюди URL Вашого скрипта ===
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiF9JdmIImU9i2gM2iRggIZEUeY2bSrd6I5-CxCKyrQnBW3vTdp2a_Y_2JPShr9Wh5CQ/exec';
         const ADMIN_PASSWORD = 'mitadmin';
@@ -3287,14 +3287,23 @@
                 if (data.currentWeek) {
                     actualCurrentWeek = data.currentWeek;
                     currentWeek = data.currentWeek;
-                    console.log('[INFO] Current week:', currentWeek);
+                    
+                    // Визначаємо який день тижня сьогодні
+                    const now = new Date();
+                    const dayOfWeek = now.getDay(); // 0 = неділя, 6 = субота
+                    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+                    
+                    if (isWeekend) {
+                        console.log('[INFO] Weekend! Current week:', currentWeek, '→ Will show as "Next week" with opposite number');
+                    } else {
+                        console.log('[INFO] Weekday. Current week:', currentWeek);
+                    }
                     
                     // Встановлюємо тиждень в UI
                     setTimeout(() => setWeek(currentWeek), 0);
                     
-                    // Оновлюємо індикатор поточного тижня
-                    const isNextWeek = data.isNextWeek || false;
-                    updateCurrentWeekIndicator(isNextWeek);
+                    // Оновлюємо індикатор (у вихідні показуємо наступний тиждень)
+                    updateCurrentWeekIndicator(isWeekend);
                 }
                 
                 // Зберігаємо дату початку семестру
@@ -4799,12 +4808,25 @@
             
             if (!indicator || !text) return;
             
-            const weekRoman = actualCurrentWeek === 1 ? 'I' : 'II';
+            console.log('[DEBUG updateCurrentWeekIndicator] isNextWeek:', isNextWeek, 'actualCurrentWeek:', actualCurrentWeek);
+            
+            // Якщо вихідні (isNextWeek = true) - показуємо протилежний тиждень
+            // Якщо робочі дні - показуємо поточний тиждень
+            let weekToShow = actualCurrentWeek;
+            if (isNextWeek) {
+                // Наступний тиждень = протилежний до поточного
+                weekToShow = (actualCurrentWeek === 1) ? 2 : 1;
+                console.log('[DEBUG] Weekend mode: actualCurrentWeek', actualCurrentWeek, '→ showing next week:', weekToShow);
+            }
+            
+            const weekRoman = weekToShow === 1 ? 'I' : 'II';
             
             if (isNextWeek) {
                 text.textContent = `Наступний тиждень: ${weekRoman}`;
+                console.log('[DEBUG] Setting text to: Наступний тиждень:', weekRoman);
             } else {
                 text.textContent = `Поточний тиждень: ${weekRoman}`;
+                console.log('[DEBUG] Setting text to: Поточний тиждень:', weekRoman);
             }
             
             // Show indicator
