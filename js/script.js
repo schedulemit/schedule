@@ -4416,6 +4416,7 @@
                         .action-buttons {
                             display: flex;
                             gap: 10px;
+                            margin-top: 20px;
                             margin-bottom: 20px;
                             flex-wrap: wrap;
                         }
