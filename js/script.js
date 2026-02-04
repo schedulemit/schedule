@@ -2737,11 +2737,6 @@
             e.stopPropagation(); 
             if(!val) return; 
             
-            // Блокуємо highlight на мобільних пристроях
-            if (window.innerWidth <= 768) {
-                return;
-            }
-            
             // Очищаємо розширений пошук, якщо він був активний
             if (Object.keys(advancedSearchFilters).length > 0) {
                 advancedSearchFilters = {};
@@ -3792,7 +3787,7 @@
                     // Показуємо кнопку toggle для викладачів (на всіх пристроях)
                         initTeacherToggle(teacherName);
                 } else if (groupName) {
-                    if (window.innerWidth > 768) activateHighlight('group', groupName, { stopPropagation: ()=>{} });
+                    activateHighlight('group', groupName, { stopPropagation: ()=>{} });
                 }
             }, 500);
         }
