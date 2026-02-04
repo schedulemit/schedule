@@ -1886,6 +1886,7 @@
             div.dataset.group = lesson.group; 
             div.dataset.teacher = lesson.teacher; 
             div.dataset.teacher2 = lesson.teacher2;
+            div.dataset.subject = lesson.subject;
             
             if (actionState.active && actionState.sourceId === lesson.id) div.classList.add('action-source');
             
@@ -1967,7 +1968,12 @@
             }
 
             // --- І ТУТ ТЕЖ (для груп): замість title пишемо data-tooltip ---
-            div.innerHTML = `<div class="card-top-row"><span class="group-badge" onclick="activateHighlight('group', '${lesson.group}', event)" data-tooltip="${lesson.group || ''}">${lesson.group || '-'}</span><span class="type-badge" data-tooltip="${lesson.type}"><i class="fa-solid ${typeInfo.icon}"></i> ${typeInfo.short}</span></div>${actionsHtml}<div class="lesson-subject">${lesson.subject}</div><div class="lesson-footer"><div class="info-row teacher-row" onclick="activateHighlight('teacher', '${lesson.teacher}', event)"><i class="fa-regular fa-user"></i> ${teacherDisplay}</div><div class="info-row room-row"><i class="fa-solid fa-location-dot"></i> ${roomDisplay}</div>${lesson.note ? `<div style="font-size:9px;color:#d97706;margin-top:2px;">${lesson.note}</div>` : ''}</div>`;
+            // Екрануємо апострофи для безпечного використання в onclick
+            const safeGroup = (lesson.group || '').replace(/'/g, "\\'");
+            const safeSubject = (lesson.subject || '').replace(/'/g, "\\'");
+            const safeTeacher = (lesson.teacher || '').replace(/'/g, "\\'");
+            
+            div.innerHTML = `<div class="card-top-row"><span class="group-badge" onclick="activateHighlight('group', '${safeGroup}', event)" data-tooltip="${lesson.group || ''}">${lesson.group || '-'}</span><span class="type-badge" data-tooltip="${lesson.type}"><i class="fa-solid ${typeInfo.icon}"></i> ${typeInfo.short}</span></div>${actionsHtml}<div class="lesson-subject" onclick="activateHighlight('subject', '${safeSubject}', event)">${lesson.subject}</div><div class="lesson-footer"><div class="info-row teacher-row" onclick="activateHighlight('teacher', '${safeTeacher}', event)"><i class="fa-regular fa-user"></i> ${teacherDisplay}</div><div class="info-row room-row"><i class="fa-solid fa-location-dot"></i> ${roomDisplay}</div>${lesson.note ? `<div style="font-size:9px;color:#d97706;margin-top:2px;">${lesson.note}</div>` : ''}</div>`;
             
             // Обробка кліків на request ghosts (тільки для адміна в режимі порівняння)
             if (lesson._isRequestGhost && isAdmin && doDiff) {
@@ -1983,7 +1989,7 @@
             } else if (!doDiff) {
                 div.addEventListener('dragstart', handleDragStart);
                 div.addEventListener('click', (e) => {
-                    if(!e.target.closest('.action-btn') && !e.target.closest('.group-badge') && !e.target.closest('.teacher-row') && !e.target.closest('.mobile-menu-item')) {
+                    if(!e.target.closest('.action-btn') && !e.target.closest('.group-badge') && !e.target.closest('.teacher-row') && !e.target.closest('.lesson-subject') && !e.target.closest('.mobile-menu-item')) {
                         // Якщо режим мульти-вибору - обираємо source lesson
                         if (multiChoiceState.active) {
                             e.stopPropagation();
@@ -2753,7 +2759,7 @@
             p.classList.add('show'); 
             reapplyHighlight(); 
         }
-        function reapplyHighlight() { document.querySelectorAll('.lesson-card').forEach(c => { c.classList.remove('highlighted'); let match = false; if(highlightState.type === 'group' && c.dataset.group && c.dataset.group.includes(highlightState.value)) match = true; if(highlightState.type === 'teacher' && (c.dataset.teacher === highlightState.value || c.dataset.teacher2 === highlightState.value)) match = true; if(match) c.classList.add('highlighted'); }); }
+        function reapplyHighlight() { document.querySelectorAll('.lesson-card').forEach(c => { c.classList.remove('highlighted'); let match = false; if(highlightState.type === 'group' && c.dataset.group && c.dataset.group.includes(highlightState.value)) match = true; if(highlightState.type === 'teacher' && (c.dataset.teacher === highlightState.value || c.dataset.teacher2 === highlightState.value)) match = true; if(highlightState.type === 'subject' && c.dataset.subject === highlightState.value) match = true; if(match) c.classList.add('highlighted'); }); }
         function clearHighlight() { highlightState.active = false; document.body.classList.remove('spotlight-active'); document.getElementById('filter-panel').classList.remove('show'); document.querySelectorAll('.lesson-card').forEach(c => c.classList.remove('highlighted')); }
         function handleBodyClick(e) { if(!e.target.closest('.mobile-actions')) closeAllMobileMenus(); if(highlightState.active && !e.target.closest('.lesson-card') && !e.target.closest('.top-bar') && !e.target.closest('.modal-box')) clearHighlight(); }
         function updateLiveStatus() { 
