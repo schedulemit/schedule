@@ -2759,8 +2759,32 @@
             p.classList.add('show'); 
             reapplyHighlight(); 
         }
-        function reapplyHighlight() { document.querySelectorAll('.lesson-card').forEach(c => { c.classList.remove('highlighted'); let match = false; if(highlightState.type === 'group' && c.dataset.group && c.dataset.group.includes(highlightState.value)) match = true; if(highlightState.type === 'teacher' && (c.dataset.teacher === highlightState.value || c.dataset.teacher2 === highlightState.value)) match = true; if(highlightState.type === 'subject' && c.dataset.subject === highlightState.value) match = true; if(match) c.classList.add('highlighted'); }); }
-        function clearHighlight() { highlightState.active = false; document.body.classList.remove('spotlight-active'); document.getElementById('filter-panel').classList.remove('show'); document.querySelectorAll('.lesson-card').forEach(c => c.classList.remove('highlighted')); }
+        function reapplyHighlight() { 
+            document.querySelectorAll('.lesson-card').forEach(c => { 
+                // Очищаємо inline стилі які могли встановитися від teacherViewMode
+                c.style.opacity = '';
+                c.style.filter = '';
+                c.style.display = '';
+                
+                c.classList.remove('highlighted'); 
+                let match = false; 
+                if(highlightState.type === 'group' && c.dataset.group && c.dataset.group.includes(highlightState.value)) match = true; 
+                if(highlightState.type === 'teacher' && (c.dataset.teacher === highlightState.value || c.dataset.teacher2 === highlightState.value)) match = true; 
+                if(highlightState.type === 'subject' && c.dataset.subject === highlightState.value) match = true; 
+                if(match) c.classList.add('highlighted'); 
+            }); 
+        }
+        function clearHighlight() { 
+            highlightState.active = false; 
+            document.body.classList.remove('spotlight-active'); 
+            document.getElementById('filter-panel').classList.remove('show'); 
+            document.querySelectorAll('.lesson-card').forEach(c => c.classList.remove('highlighted')); 
+            
+            // Якщо був активний режим викладача - відновлюємо його
+            if (currentTeacherName) {
+                applyTeacherFilter();
+            }
+        }
         function handleBodyClick(e) { if(!e.target.closest('.mobile-actions')) closeAllMobileMenus(); if(highlightState.active && !e.target.closest('.lesson-card') && !e.target.closest('.top-bar') && !e.target.closest('.modal-box')) clearHighlight(); }
         function updateLiveStatus() { 
             const now = new Date(); 
