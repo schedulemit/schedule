@@ -2737,6 +2737,11 @@
             e.stopPropagation(); 
             if(!val) return; 
             
+            // Блокуємо highlight на мобільних пристроях для не-адмінів (викладачів, гостей)
+            if (window.innerWidth <= 768 && !isAdmin) {
+                return;
+            }
+            
             // Очищаємо розширений пошук, якщо він був активний
             if (Object.keys(advancedSearchFilters).length > 0) {
                 advancedSearchFilters = {};
@@ -3787,7 +3792,10 @@
                     // Показуємо кнопку toggle для викладачів (на всіх пристроях)
                         initTeacherToggle(teacherName);
                 } else if (groupName) {
-                    activateHighlight('group', groupName, { stopPropagation: ()=>{} });
+                    // Для не-адмінів активуємо тільки на десктопі
+                    if (isAdmin || window.innerWidth > 768) {
+                        activateHighlight('group', groupName, { stopPropagation: ()=>{} });
+                    }
                 }
             }, 500);
         }
