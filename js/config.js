@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // === BACKEND КОНФІГУРАЦІЯ ===
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiT3Scj1sRbaDKs1QgdZLxgCUQoGVd-adDaXGc3Jmpf4hfqMa97oHK06zhIb2AR4Rn7w/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDwdKgVA5jvX6WvHZCVgNsohb_dBxNRd2xMkISLiLHJgur5OgkUopqrE_3fcuYzQbJmA/exec';
 
 // Пароль для доступу адміністратора
 const ADMIN_PASSWORD = 'mitadmin';
